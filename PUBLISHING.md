@@ -39,8 +39,15 @@ deleted (only hidden), so remove anything that is only for testing first.
    one scenario link per module (`https://eu1.make.com/<team>/scenarios/<id>/edit`), and a link to a scenario that
    shows an API error (Get a Capture with the ID `00000000-0000-0000-0000-000000000000` answers 404
    `capture_not_found`). Make the latest run of each linked scenario a successful one: reviewers read the history.
-2. **Request review** on the Review tab submits at once (no further form on 15 Nov 2026); the app shows "pending
-   approval". The developer contact shown is the Make account's (admin@websitescreenshotworld.com).
+2. **Request review** on the Review tab; the app shows "pending approval". Within a minute Make sets "Changes
+   required: please complete the form sent by email". That email (to admin@websitescreenshotworld.com) links a Tally
+   form, "Externally developed apps on Make": relationship "We are the direct vendor of that software (ISV)",
+   company name (shown on the app's page; Silhouettec Solutions Private Limited), homepage
+   `https://www.websitescreenshotworld.com`, logo `assets/logo-512.png`, a business contact (email, name, phone),
+   the support contact (support@websitescreenshotworld.com, "Website Screenshot World Support"), category IT &
+   Development (Development Tools, Monitoring, Data Extraction & Collection), the optional Technology Partner
+   Program box (left unticked), and the trademark and terms declarations, which Chandni ticks herself. After it is
+   submitted the Review Status reads "Your review request was received."
 3. Make runs an automatic check, then a manual review; feedback comes by email. "Update review" on the Review tab
    resubmits after changes.
 
