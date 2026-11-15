@@ -19,7 +19,7 @@
       "selectors": "{{parameters.selectors}}",
       "locale": "{{parameters.locale}}",
       "time_zone": "{{parameters.time_zone}}",
-      "proxy": "{{parameters.proxy}}"
+      "{{...}}": "{{if(parameters.proxy.country, pick(parameters, 'proxy'), pick(parameters, 'proxyNotGiven'))}}"
     },
     "response": {
       "temp": {

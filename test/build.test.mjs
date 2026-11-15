@@ -107,6 +107,17 @@ describe('capture modules', () => {
     }
   });
 
+  test('the proxy block is sent only with a country, since the API refuses it without one', () => {
+    for (const name of Object.keys(cases)) {
+      const [start] = read(`modules/${name}/api.imljson`);
+      assert.equal(start.body.proxy, undefined, name);
+      assert.equal(
+        start.body['{{...}}'],
+        "{{if(parameters.proxy.country, pick(parameters, 'proxy'), pick(parameters, 'proxyNotGiven'))}}",
+      );
+    }
+  });
+
   test('a document PDF is never asked for as a scrolling capture', () => {
     const [start] = read('modules/createPdf/api.imljson');
     assert.equal(start.body.scroll_mode, "{{if(parameters.full_page && parameters.format === 'image_pdf', 'scroll', 'viewport')}}");

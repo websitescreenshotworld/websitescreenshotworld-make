@@ -223,7 +223,8 @@ const placeFields = [
     type: 'collection',
     label: 'Capture from another country',
     help: 'Needs a plan with proxy locations.',
-    spec: [{ name: 'country', type: 'text', label: 'Country', required: true, help: 'Such as `gb` or `de`.' }],
+    // Not required: Make would then insist on it even when the block is left empty.
+    spec: [{ name: 'country', type: 'text', label: 'Country', help: 'Such as `gb` or `de`. Leave empty for the default location.' }],
   },
 ];
 
@@ -236,7 +237,9 @@ const commonBody = {
   selectors: '{{parameters.selectors}}',
   locale: '{{parameters.locale}}',
   time_zone: '{{parameters.time_zone}}',
-  proxy: '{{parameters.proxy}}',
+  // Make sends a collection the user left empty as {}, and the API refuses a proxy block without a country, so
+  // the block is added only when a country is given: pick() of a missing key is an empty collection.
+  '{{...}}': "{{if(parameters.proxy.country, pick(parameters, 'proxy'), pick(parameters, 'proxyNotGiven'))}}",
 };
 
 /**

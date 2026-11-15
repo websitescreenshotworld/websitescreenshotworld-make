@@ -109,8 +109,7 @@
         "name": "country",
         "type": "text",
         "label": "Country",
-        "required": true,
-        "help": "Such as `gb` or `de`."
+        "help": "Such as `gb` or `de`. Leave empty for the default location."
       }
     ]
   }
