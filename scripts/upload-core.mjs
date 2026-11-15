@@ -132,54 +132,58 @@ export async function upload(sdk, appDir, { icon } = {}) {
     });
   }
 
-  // The app: version 1, created private when it does not exist yet.
+  // The app: version 1, created private when it does not exist yet. Make makes the name unique by adding a
+  // suffix (website-screenshot-world-hoa0se), so the app is found again by its label among your apps; a direct
+  // read of a name that is not yours answers 403, not 404.
   let version = 1;
-  await step(`app ${app.name}`, async () => {
-    let existing;
-    try {
-      existing = await sdk.apps.get(app.name, version, { cols: ['name', 'version', 'public'] });
-    } catch (error) {
-      if (error?.statusCode !== 404) throw error;
+  let appName = app.name;
+  await step('app', async () => {
+    const mine = (await sdk.apps.list({ cols: ['name', 'label', 'version', 'public'] })).filter(
+      (item) =>
+        item.version === version &&
+        item.label === app.label &&
+        (item.name === app.name || item.name.startsWith(`${app.name}-`)),
+    );
+    if (mine.length > 1) {
+      throw new CheckFailure(
+        `Make has ${mine.length} apps labelled "${app.label}" (${mine.map((item) => item.name).join(', ')}); delete all but one in Make, then run again`,
+      );
     }
-    if (existing) {
-      await sdk.apps.update(app.name, version, {
+    if (mine.length === 1) {
+      appName = mine[0].name;
+      await sdk.apps.update(appName, version, {
         label: app.label,
         description: app.description,
         theme: app.theme,
         language: app.language,
       });
-      return `updated (${existing.public ? 'public' : 'private'})`;
+      return `${appName} updated (${mine[0].public ? 'public' : 'private'})`;
     }
     const created = await sdk.apps.create({ ...app, private: true });
+    appName = created.name;
     version = created.version;
-    const full = await sdk.apps.get(app.name, version, { cols: ['name', 'version', 'public'] });
+    const full = await sdk.apps.get(appName, version, { cols: ['name', 'version', 'public'] });
     if (full.public !== false) throw new CheckFailure('Make did not confirm that the new app is private; nothing else was written');
-    return 'created (private)';
+    return `${appName} created (private)`;
   });
 
   await writeAndCheck(
     'app base',
-    () => sdk.apps.setSection(app.name, version, 'base', source.base),
-    () => sdk.apps.getSection(app.name, version, 'base'),
+    () => sdk.apps.setSection(appName, version, 'base', source.base),
+    () => sdk.apps.getSection(appName, version, 'base'),
     source.base,
   );
-  await writeAndCheck(
-    'app groups',
-    () => sdk.apps.setSection(app.name, version, 'groups', source.groups),
-    () => sdk.apps.getSection(app.name, version, 'groups'),
-    source.groups,
-  );
-  await step('app docs', () => sdk.apps.setDocs(app.name, version, source.docs));
-  if (icon) await step('app icon', () => sdk.apps.setIcon(app.name, version, icon));
+  await step('app docs', () => sdk.apps.setDocs(appName, version, source.docs));
+  if (icon) await step('app icon', () => sdk.apps.setIcon(appName, version, icon));
 
   // Connections, looked up by label because Make names them.
   const connectionNames = {};
-  const existingConnections = (await step('list connections', () => sdk.connections.list(app.name))) ?? [];
+  const existingConnections = (await step('list connections', () => sdk.connections.list(appName))) ?? [];
   for (const connection of source.connections) {
     const name = await step(`connection ${connection.key}`, async () => {
       const found = existingConnections.find((item) => item.label === connection.meta.label);
       if (found) return found.name;
-      return (await sdk.connections.create(app.name, { type: connection.meta.type, label: connection.meta.label })).name;
+      return (await sdk.connections.create(appName, { type: connection.meta.type, label: connection.meta.label })).name;
     });
     connectionNames[connection.key] = name;
     for (const [section, text] of Object.entries(connection.sections)) {
@@ -194,7 +198,7 @@ export async function upload(sdk, appDir, { icon } = {}) {
 
   // Webhooks, also looked up by label; each takes either connection.
   const webhookNames = {};
-  const existingWebhooks = (await step('list webhooks', () => sdk.webhooks.list(app.name))) ?? [];
+  const existingWebhooks = (await step('list webhooks', () => sdk.webhooks.list(appName))) ?? [];
   for (const webhook of source.webhooks) {
     const binding = {
       connection: connectionNames[webhook.meta.connection],
@@ -204,7 +208,7 @@ export async function upload(sdk, appDir, { icon } = {}) {
       const found = existingWebhooks.find((item) => item.label === webhook.meta.label);
       const hookName = found
         ? found.name
-        : (await sdk.webhooks.create(app.name, { type: webhook.meta.type, label: webhook.meta.label, connection: binding.connection })).name;
+        : (await sdk.webhooks.create(appName, { type: webhook.meta.type, label: webhook.meta.label, connection: binding.connection })).name;
       await sdk.webhooks.update(hookName, { label: webhook.meta.label, ...binding });
       return hookName;
     });
@@ -220,7 +224,7 @@ export async function upload(sdk, appDir, { icon } = {}) {
   }
 
   // Modules: a capture or call module is bound to its connection, an instant trigger to its webhook.
-  const existingModules = (await step('list modules', () => sdk.modules.list(app.name, version))) ?? [];
+  const existingModules = (await step('list modules', () => sdk.modules.list(appName, version))) ?? [];
   for (const module of source.modules) {
     const { meta } = module;
     const connection = meta.connection ? connectionNames[meta.connection] : undefined;
@@ -231,14 +235,14 @@ export async function upload(sdk, appDir, { icon } = {}) {
         if (found.typeId !== undefined && found.typeId !== meta.typeId) {
           throw new CheckFailure(`exists in Make as another module type (${found.typeId}); a type cannot change`);
         }
-        await sdk.modules.update(app.name, version, module.name, {
+        await sdk.modules.update(appName, version, module.name, {
           label: meta.label,
           description: meta.description,
           ...(connection ? { connection } : {}),
         });
         return 'updated';
       }
-      await sdk.modules.create(app.name, version, {
+      await sdk.modules.create(appName, version, {
         name: module.name,
         typeId: meta.typeId,
         label: meta.label,
@@ -254,14 +258,22 @@ export async function upload(sdk, appDir, { icon } = {}) {
       if (section === 'expect' && meta.typeId === 10) continue;
       await writeAndCheck(
         `module ${module.name} ${section}`,
-        () => sdk.modules.setSection(app.name, version, module.name, section, text),
-        () => sdk.modules.getSection(app.name, version, module.name, section),
+        () => sdk.modules.setSection(appName, version, module.name, section, text),
+        () => sdk.modules.getSection(appName, version, module.name, section),
         text,
       );
     }
   }
 
-  return { ok: !failed, app: { name: app.name, version }, steps };
+  // Groups name modules, so Make accepts them only once every module exists.
+  await writeAndCheck(
+    'app groups',
+    () => sdk.apps.setSection(appName, version, 'groups', source.groups),
+    () => sdk.apps.getSection(appName, version, 'groups'),
+    source.groups,
+  );
+
+  return { ok: !failed, app: { name: appName, version }, steps };
 }
 
 export function formatReport(report) {

@@ -5,32 +5,35 @@ import { formatReport, upload } from '../scripts/upload-core.mjs';
 
 const APP_DIR = join(import.meta.dirname, '..', 'app');
 
-class NotFound extends Error {
-  statusCode = 404;
-}
-
 /**
  * An in-memory stand-in for `make.sdk`: it keeps what was written, names connections and webhooks the way Make
  * does (app name plus a number), and records every call.
  */
 function fakeMake({ appPublic = false, changeOnRead = null } = {}) {
   const calls = [];
-  const state = { app: null, sections: new Map(), connections: [], webhooks: [], modules: [] };
+  const state = { apps: [], sections: new Map(), connections: [], webhooks: [], modules: [] };
   const record = (name, ...args) => calls.push([name, ...args]);
   const store = (key, value) => state.sections.set(key, value);
   const load = (key) => (changeOnRead === key ? '{"changed": true}' : state.sections.get(key));
 
   const sdk = {
     apps: {
+      async list() {
+        return state.apps.map(({ name, label, public: isPublic }) => ({ name, label, version: 1, public: isPublic }));
+      },
       async get(name, version) {
         record('apps.get', name, version);
-        if (!state.app) throw new NotFound('not found');
-        return { name, version, public: state.app.public };
+        const app = state.apps.find((item) => item.name === name);
+        // Make answers 403, not 404, for an app that is not yours.
+        if (!app) throw Object.assign(new Error('forbidden'), { statusCode: 403 });
+        return { name, version, public: app.public };
       },
       async create(body) {
         record('apps.create', body);
-        state.app = { ...body, version: 1, public: appPublic };
-        return { name: body.name, version: 1, public: appPublic };
+        // Make makes the name unique with a suffix of its own.
+        const app = { ...body, name: `${body.name}-hoa0se`, version: 1, public: appPublic };
+        state.apps.push(app);
+        return { name: app.name, version: 1, public: appPublic };
       },
       async update(name, version, body) {
         record('apps.update', name, version, body);
@@ -123,6 +126,9 @@ describe('upload', () => {
     assert.equal(report.ok, true, formatReport(report));
     const [[created]] = callsNamed(calls, 'apps.create');
     assert.equal(created.name, 'website-screenshot-world');
+    // Everything after the create uses the name Make gave the app.
+    assert.equal(report.app.name, 'website-screenshot-world-hoa0se');
+    assert.deepEqual(callsNamed(calls, 'apps.get')[0], ['website-screenshot-world-hoa0se', 1]);
     assert.equal(created.private, true);
     assert.equal(created.audience, 'global');
 
@@ -149,6 +155,10 @@ describe('upload', () => {
     assert.equal(trigger.webhook, state.webhooks.find((hook) => hook.label.endsWith('Captures Succeeded')).name);
     assert.equal(state.modules.find((module) => module.name === 'takeScreenshot').connection, instantSnap);
     assert.equal(state.modules.find((module) => module.name === 'captureScheduledPageNow').connection, autoSchedule);
+
+    // Groups name modules, so they are written after the last module.
+    const order = calls.map(([name, section]) => (name === 'apps.setSection' ? `app ${section}` : name));
+    assert.ok(order.lastIndexOf('modules.create') < order.indexOf('app groups'));
 
     // An instant trigger has no mappable parameters, so its expect section is not written.
     assert.equal(state.sections.has('module/watchCaptureSucceeded/expect'), false);
@@ -179,8 +189,26 @@ describe('upload', () => {
 
     assert.equal(report.ok, false);
     assert.deepEqual(callsNamed(calls, 'apps.setSection'), []);
-    assert.match(formatReport(report), /FAILED app website-screenshot-world: Make did not confirm/);
+    assert.match(formatReport(report), /FAILED app: Make did not confirm/);
     assert.ok(report.steps.slice(1).every((step) => step.status === 'not attempted'));
+  });
+
+  test('stops, creating nothing, when Make already has several apps with the label', async () => {
+    const { sdk, calls, state } = fakeMake();
+    state.apps.push(
+      { name: 'website-screenshot-world-aaaaaa', label: 'Website Screenshot World', public: false },
+      { name: 'website-screenshot-world-bbbbbb', label: 'Website Screenshot World', public: false },
+      { name: 'someone-else', label: 'Website Screenshot World', public: false },
+    );
+
+    const report = await upload(sdk, APP_DIR);
+
+    assert.equal(report.ok, false);
+    assert.match(
+      formatReport(report),
+      /FAILED app: Make has 2 apps labelled "Website Screenshot World" \(website-screenshot-world-aaaaaa, website-screenshot-world-bbbbbb\); delete all but one/,
+    );
+    assert.deepEqual(callsNamed(calls, 'apps.create'), []);
   });
 
   test('stops when a section reads back differently', async () => {
@@ -196,7 +224,7 @@ describe('upload', () => {
 
   test('describes a Make error by its status only', async () => {
     const { sdk } = fakeMake();
-    sdk.apps.get = async () => {
+    sdk.apps.list = async () => {
       const error = new Error('token wsw_secret in body');
       error.statusCode = 403;
       throw error;

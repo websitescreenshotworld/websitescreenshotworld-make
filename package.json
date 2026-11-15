@@ -13,7 +13,8 @@
     "check": "node scripts/build.mjs --check && npm run validate && npm test",
     "validate": "node tools/editor-schemas/validate.mjs app",
     "test": "node --test test/*.test.mjs",
-    "upload": "node scripts/upload.mjs"
+    "upload": "node scripts/upload.mjs",
+    "diagnose": "node scripts/diagnose.mjs"
   },
   "dependencies": {
     "@makehq/sdk": "1.17.0"
