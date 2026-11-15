@@ -1,0 +1,6 @@
+{
+  "label": "Website Screenshot World: Sitemap Runs Completed",
+  "type": "web",
+  "connection": "instantSnap",
+  "altConnection": "autoSchedule"
+}

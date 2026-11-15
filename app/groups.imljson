@@ -1,0 +1,35 @@
+[
+  {
+    "label": "Captures",
+    "modules": [
+      "takeScreenshot",
+      "createPdf",
+      "recordVideo",
+      "getPageContent",
+      "getCapture"
+    ]
+  },
+  {
+    "label": "Auto Schedule",
+    "modules": [
+      "captureScheduledPageNow"
+    ]
+  },
+  {
+    "label": "Events",
+    "modules": [
+      "watchCaptureSucceeded",
+      "watchCaptureFailed",
+      "watchPageChanged",
+      "watchDeliveryCompleted",
+      "watchSchedulePaused",
+      "watchSitemapRunCompleted"
+    ]
+  },
+  {
+    "label": "Other",
+    "modules": [
+      "makeApiCall"
+    ]
+  }
+]

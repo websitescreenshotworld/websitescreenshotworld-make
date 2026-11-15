@@ -1,0 +1,6 @@
+{
+  "typeId": 10,
+  "label": "Watch Captures Succeeded",
+  "description": "Triggers when a capture finishes, from a schedule or from the Instant Snap API.",
+  "webhook": "captureSucceeded"
+}

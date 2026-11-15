@@ -1,0 +1,24 @@
+{
+  "url": "https://api.websitescreenshotworld.com/instant-snap/v1/account",
+  "method": "GET",
+  "headers": {
+    "x-api-key": "{{parameters.apiKey}}"
+  },
+  "response": {
+    "error": {
+      "message": "[{{statusCode}}] {{ifempty(body.error_message, 'The request was refused.')}} ({{ifempty(body.error_code, 'no error code')}})"
+    },
+    "data": {
+      "apiBase": "https://api.websitescreenshotworld.com/instant-snap/v1"
+    },
+    "metadata": {
+      "type": "text",
+      "value": "{{ifempty(body.email, 'Former member')}} ({{ifempty(body.key_name, body.key_prefix)}})"
+    }
+  },
+  "log": {
+    "sanitize": [
+      "request.headers.x-api-key"
+    ]
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "typeId": 10,
+  "label": "Watch Captures Failed",
+  "description": "Triggers when a capture fails, from a schedule or from the Instant Snap API.",
+  "webhook": "captureFailed"
+}

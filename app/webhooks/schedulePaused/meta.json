@@ -1,0 +1,6 @@
+{
+  "label": "Website Screenshot World: Schedules Paused",
+  "type": "web",
+  "connection": "instantSnap",
+  "altConnection": "autoSchedule"
+}

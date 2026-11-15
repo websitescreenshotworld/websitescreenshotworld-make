@@ -1,0 +1,9 @@
+[
+  {
+    "name": "capture_id",
+    "type": "text",
+    "label": "Capture ID",
+    "required": true,
+    "help": "The ID a capture module or a capture event returned. Files are kept for 24 hours."
+  }
+]

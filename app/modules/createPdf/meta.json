@@ -1,0 +1,6 @@
+{
+  "typeId": 4,
+  "label": "Create a PDF",
+  "description": "Creates a PDF of a web page, with selectable text or exactly as it looks on screen.",
+  "connection": "instantSnap"
+}

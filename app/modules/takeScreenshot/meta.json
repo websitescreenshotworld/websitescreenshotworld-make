@@ -1,0 +1,6 @@
+{
+  "typeId": 4,
+  "label": "Take a Screenshot",
+  "description": "Takes a screenshot of a web page as PNG, JPEG, WebP or TIFF.",
+  "connection": "instantSnap"
+}

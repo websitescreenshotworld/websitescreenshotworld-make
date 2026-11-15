@@ -1,0 +1,6 @@
+{
+  "label": "Website Screenshot World: Captures Failed",
+  "type": "web",
+  "connection": "instantSnap",
+  "altConnection": "autoSchedule"
+}

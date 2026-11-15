@@ -1,0 +1,17 @@
+{
+  "condition": "{{body.type === 'sitemap_run.completed'}}",
+  "respond": {
+    "status": 200,
+    "type": "json",
+    "body": {
+      "received": true
+    }
+  },
+  "output": {
+    "id": "{{body.id}}",
+    "event": "{{body.type}}",
+    "product": "{{body.product}}",
+    "created_at": "{{body.created_at}}",
+    "data": "{{body.data}}"
+  }
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "name": "product",
+    "type": "select",
+    "label": "Product",
+    "help": "Only this product’s captures. Leave empty for both.",
+    "options": [
+      {
+        "label": "Auto Schedule (scheduled pages)",
+        "value": "auto_schedule"
+      },
+      {
+        "label": "Instant Snap API",
+        "value": "instant_snap"
+      }
+    ]
+  }
+]

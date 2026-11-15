@@ -1,0 +1,9 @@
+[
+  {
+    "name": "apiKey",
+    "type": "password",
+    "label": "Auto Schedule API key",
+    "required": true,
+    "help": "Create one in the Website Screenshot World dashboard, under Developer Tools, API Keys. It starts with `wsw_autoapi_`."
+  }
+]

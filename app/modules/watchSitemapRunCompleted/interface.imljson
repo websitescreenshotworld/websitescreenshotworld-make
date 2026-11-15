@@ -1,0 +1,104 @@
+[
+  {
+    "name": "id",
+    "type": "text",
+    "label": "Event ID"
+  },
+  {
+    "name": "event",
+    "type": "text",
+    "label": "Event"
+  },
+  {
+    "name": "product",
+    "type": "text",
+    "label": "Product"
+  },
+  {
+    "name": "created_at",
+    "type": "date",
+    "label": "Created at"
+  },
+  {
+    "name": "data",
+    "label": "Data",
+    "type": "collection",
+    "spec": [
+      {
+        "name": "sitemap_run_id",
+        "label": "Sitemap run ID",
+        "type": "text"
+      },
+      {
+        "name": "schedule_id",
+        "label": "Schedule ID",
+        "type": "text"
+      },
+      {
+        "name": "schedule_name",
+        "label": "Schedule name",
+        "type": "text"
+      },
+      {
+        "name": "sitemap_url",
+        "label": "Sitemap URL",
+        "type": "url"
+      },
+      {
+        "name": "status",
+        "label": "Status",
+        "type": "text"
+      },
+      {
+        "name": "run_at",
+        "label": "Run at",
+        "type": "date"
+      },
+      {
+        "name": "completed_at",
+        "label": "Completed at",
+        "type": "date"
+      },
+      {
+        "name": "pages_listed",
+        "label": "Pages listed",
+        "type": "number"
+      },
+      {
+        "name": "pages_matched",
+        "label": "Pages matched",
+        "type": "number"
+      },
+      {
+        "name": "pages_queued",
+        "label": "Pages queued",
+        "type": "number"
+      },
+      {
+        "name": "pages_succeeded",
+        "label": "Pages succeeded",
+        "type": "number"
+      },
+      {
+        "name": "pages_failed",
+        "label": "Pages failed",
+        "type": "number"
+      },
+      {
+        "name": "pages_over_limit",
+        "label": "Pages over limit",
+        "type": "number"
+      },
+      {
+        "name": "pages_over_quota",
+        "label": "Pages over quota",
+        "type": "number"
+      },
+      {
+        "name": "message",
+        "label": "Message",
+        "type": "text"
+      }
+    ]
+  }
+]

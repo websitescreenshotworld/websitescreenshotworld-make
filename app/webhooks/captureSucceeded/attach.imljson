@@ -1,0 +1,28 @@
+{
+  "url": "{{connection.apiBase}}/webhook-endpoints",
+  "method": "POST",
+  "headers": {
+    "x-api-key": "{{connection.apiKey}}"
+  },
+  "body": {
+    "url": "{{webhook.url}}",
+    "events": [
+      "capture.succeeded"
+    ],
+    "name": "Make: Captures Succeeded",
+    "product": "{{parameters.product}}"
+  },
+  "response": {
+    "data": {
+      "externalHookId": "{{body.id}}"
+    }
+  },
+  "log": {
+    "sanitize": [
+      "request.headers.x-api-key",
+      "request.body.url",
+      "response.body.url",
+      "response.body.signing_secret"
+    ]
+  }
+}

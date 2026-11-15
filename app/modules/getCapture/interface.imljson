@@ -1,0 +1,87 @@
+[
+  {
+    "name": "id",
+    "type": "text",
+    "label": "Capture ID"
+  },
+  {
+    "name": "status",
+    "type": "text",
+    "label": "Status"
+  },
+  {
+    "name": "url",
+    "type": "url",
+    "label": "URL"
+  },
+  {
+    "name": "media_category",
+    "type": "text",
+    "label": "Media category"
+  },
+  {
+    "name": "format",
+    "type": "text",
+    "label": "Format"
+  },
+  {
+    "name": "content_type",
+    "type": "text",
+    "label": "Content type"
+  },
+  {
+    "name": "size_bytes",
+    "type": "uinteger",
+    "label": "Size (bytes)"
+  },
+  {
+    "name": "width",
+    "type": "uinteger",
+    "label": "Width"
+  },
+  {
+    "name": "height",
+    "type": "uinteger",
+    "label": "Height"
+  },
+  {
+    "name": "duration_ms",
+    "type": "uinteger",
+    "label": "Duration (ms)"
+  },
+  {
+    "name": "page_http_status",
+    "type": "uinteger",
+    "label": "Page HTTP status"
+  },
+  {
+    "name": "captured_at",
+    "type": "date",
+    "label": "Captured at"
+  },
+  {
+    "name": "final_url",
+    "type": "url",
+    "label": "Final URL"
+  },
+  {
+    "name": "media_sha256",
+    "type": "text",
+    "label": "SHA-256 of the file"
+  },
+  {
+    "name": "download_url",
+    "type": "url",
+    "label": "Download URL (valid for 60 minutes)"
+  },
+  {
+    "name": "expires_at",
+    "type": "date",
+    "label": "File expires at"
+  },
+  {
+    "name": "error_code",
+    "type": "text",
+    "label": "Error code"
+  }
+]

@@ -1,0 +1,6 @@
+{
+  "typeId": 12,
+  "label": "Make an API Call",
+  "description": "Performs any Instant Snap API call with your key.",
+  "connection": "instantSnap"
+}

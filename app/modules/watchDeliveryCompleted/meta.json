@@ -1,0 +1,6 @@
+{
+  "typeId": 10,
+  "label": "Watch Deliveries Completed",
+  "description": "Triggers when a capture has been delivered to your cloud storage (S3, Google Drive or Dropbox).",
+  "webhook": "deliveryCompleted"
+}

@@ -1,0 +1,27 @@
+[
+  {
+    "name": "status",
+    "type": "text",
+    "label": "Status (triggered or already_pending)"
+  },
+  {
+    "name": "web_page_id",
+    "type": "text",
+    "label": "Web page ID"
+  },
+  {
+    "name": "triggered_by",
+    "type": "text",
+    "label": "Triggered by"
+  },
+  {
+    "name": "triggered_at",
+    "type": "date",
+    "label": "Triggered at"
+  },
+  {
+    "name": "message",
+    "type": "text",
+    "label": "Message"
+  }
+]

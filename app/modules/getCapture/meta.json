@@ -1,0 +1,6 @@
+{
+  "typeId": 4,
+  "label": "Get a Capture",
+  "description": "Reads a capture back by its ID, with a fresh download link.",
+  "connection": "instantSnap"
+}

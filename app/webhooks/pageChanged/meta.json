@@ -1,0 +1,6 @@
+{
+  "label": "Website Screenshot World: Page Changes",
+  "type": "web",
+  "connection": "instantSnap",
+  "altConnection": "autoSchedule"
+}

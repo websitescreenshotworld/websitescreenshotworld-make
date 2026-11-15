@@ -1,0 +1,54 @@
+[
+  {
+    "name": "id",
+    "type": "text",
+    "label": "Event ID"
+  },
+  {
+    "name": "event",
+    "type": "text",
+    "label": "Event"
+  },
+  {
+    "name": "product",
+    "type": "text",
+    "label": "Product"
+  },
+  {
+    "name": "created_at",
+    "type": "date",
+    "label": "Created at"
+  },
+  {
+    "name": "data",
+    "label": "Data",
+    "type": "collection",
+    "spec": [
+      {
+        "name": "schedule_id",
+        "label": "Schedule ID",
+        "type": "text"
+      },
+      {
+        "name": "schedule_name",
+        "label": "Schedule name",
+        "type": "text"
+      },
+      {
+        "name": "url",
+        "label": "URL",
+        "type": "url"
+      },
+      {
+        "name": "reason",
+        "label": "Reason",
+        "type": "text"
+      },
+      {
+        "name": "paused_at",
+        "label": "Paused at",
+        "type": "date"
+      }
+    ]
+  }
+]

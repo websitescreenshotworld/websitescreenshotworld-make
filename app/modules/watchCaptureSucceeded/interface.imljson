@@ -1,0 +1,161 @@
+[
+  {
+    "name": "id",
+    "type": "text",
+    "label": "Event ID"
+  },
+  {
+    "name": "event",
+    "type": "text",
+    "label": "Event"
+  },
+  {
+    "name": "product",
+    "type": "text",
+    "label": "Product"
+  },
+  {
+    "name": "created_at",
+    "type": "date",
+    "label": "Created at"
+  },
+  {
+    "name": "data",
+    "label": "Data",
+    "type": "collection",
+    "spec": [
+      {
+        "name": "id",
+        "label": "Capture ID",
+        "type": "text"
+      },
+      {
+        "name": "schedule_id",
+        "label": "Schedule ID",
+        "type": "text"
+      },
+      {
+        "name": "schedule_name",
+        "label": "Schedule name",
+        "type": "text"
+      },
+      {
+        "name": "url",
+        "label": "URL",
+        "type": "url"
+      },
+      {
+        "name": "status",
+        "label": "Status",
+        "type": "text"
+      },
+      {
+        "name": "media_category",
+        "label": "Media category",
+        "type": "text"
+      },
+      {
+        "name": "format",
+        "label": "Format",
+        "type": "text"
+      },
+      {
+        "name": "page_http_status",
+        "label": "Page HTTP status",
+        "type": "number"
+      },
+      {
+        "name": "captured_at",
+        "label": "Captured at",
+        "type": "date"
+      },
+      {
+        "name": "final_url",
+        "label": "Final URL",
+        "type": "url"
+      },
+      {
+        "name": "media_sha256",
+        "label": "Media SHA-256",
+        "type": "text"
+      },
+      {
+        "name": "page_source",
+        "label": "Page source",
+        "type": "collection",
+        "spec": [
+          {
+            "name": "format",
+            "label": "Format",
+            "type": "text"
+          },
+          {
+            "name": "sha256",
+            "label": "Sha256",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "name": "sitemap_run_id",
+        "label": "Sitemap run ID",
+        "type": "text"
+      },
+      {
+        "name": "response_type",
+        "label": "Response type",
+        "type": "text"
+      },
+      {
+        "name": "content_type",
+        "label": "Content type",
+        "type": "text"
+      },
+      {
+        "name": "size_bytes",
+        "label": "Size bytes",
+        "type": "number"
+      },
+      {
+        "name": "width",
+        "label": "Width",
+        "type": "number"
+      },
+      {
+        "name": "height",
+        "label": "Height",
+        "type": "number"
+      },
+      {
+        "name": "duration_ms",
+        "label": "Duration ms",
+        "type": "number"
+      },
+      {
+        "name": "expires_at",
+        "label": "Expires at",
+        "type": "date"
+      },
+      {
+        "name": "s3_delivery",
+        "label": "S3 delivery",
+        "type": "text"
+      },
+      {
+        "name": "callback_url",
+        "label": "Callback URL",
+        "type": "url"
+      },
+      {
+        "name": "error_code",
+        "label": "Error code",
+        "type": "text"
+      },
+      {
+        "name": "spec_version",
+        "label": "Spec version",
+        "type": "text"
+      }
+    ]
+  }
+]

@@ -1,0 +1,114 @@
+[
+  {
+    "url": "/captures",
+    "method": "POST",
+    "headers": {
+      "x-api-key": "{{connection.apiKey}}"
+    },
+    "body": {
+      "url": "{{parameters.url}}",
+      "media_category": "image",
+      "response_type": "json",
+      "async": true,
+      "format": "{{parameters.format}}",
+      "scroll_mode": "{{if(parameters.full_page, 'scroll', 'viewport')}}",
+      "device_category": "{{parameters.device_category}}",
+      "emulated_device": "{{parameters.emulated_device}}",
+      "viewport": "{{parameters.viewport}}",
+      "block_ads": "{{parameters.block_ads}}",
+      "block_pop_ups": "{{parameters.block_pop_ups}}",
+      "selectors": "{{parameters.selectors}}",
+      "locale": "{{parameters.locale}}",
+      "time_zone": "{{parameters.time_zone}}",
+      "proxy": "{{parameters.proxy}}"
+    },
+    "response": {
+      "temp": {
+        "id": "{{body.id}}",
+        "status": "{{body.status}}",
+        "capture": "{{body}}"
+      }
+    },
+    "log": {
+      "sanitize": [
+        "request.headers.x-api-key"
+      ]
+    }
+  },
+  {
+    "condition": "{{temp.status === 'queued' || temp.status === 'running' || temp.status === 'pending'}}",
+    "url": "/captures/{{temp.id}}",
+    "method": "GET",
+    "headers": {
+      "x-api-key": "{{connection.apiKey}}"
+    },
+    "repeat": {
+      "condition": "{{temp.status === 'queued' || temp.status === 'running' || temp.status === 'pending'}}",
+      "delay": 3000,
+      "limit": 40
+    },
+    "response": {
+      "temp": {
+        "status": "{{body.status}}",
+        "capture": "{{body}}"
+      },
+      "valid": "{{body.status !== 'failed' && body.status !== 'timed_out' && body.status !== 'expired'}}",
+      "error": {
+        "message": "The capture ended {{body.status}} ({{ifempty(body.error_code, 'no error code')}}; the page answered HTTP {{ifempty(body.page_http_status, 'nothing')}}). Failed captures are not charged."
+      },
+      "output": {
+        "id": "{{body.id}}",
+        "status": "{{body.status}}",
+        "url": "{{body.url}}",
+        "media_category": "{{body.media_category}}",
+        "format": "{{body.format}}",
+        "content_type": "{{body.content_type}}",
+        "size_bytes": "{{body.size_bytes}}",
+        "width": "{{body.width}}",
+        "height": "{{body.height}}",
+        "duration_ms": "{{body.duration_ms}}",
+        "page_http_status": "{{body.page_http_status}}",
+        "captured_at": "{{body.captured_at}}",
+        "final_url": "{{body.final_url}}",
+        "media_sha256": "{{body.media_sha256}}",
+        "download_url": "{{body.download_url}}",
+        "expires_at": "{{body.expires_at}}",
+        "error_code": "{{body.error_code}}"
+      }
+    },
+    "log": {
+      "sanitize": [
+        "request.headers.x-api-key"
+      ]
+    }
+  },
+  {
+    "condition": "{{temp.status === 'succeeded'}}",
+    "url": "{{temp.capture.download_url}}",
+    "method": "GET",
+    "response": {
+      "type": "binary",
+      "output": {
+        "id": "{{temp.capture.id}}",
+        "status": "{{temp.capture.status}}",
+        "url": "{{temp.capture.url}}",
+        "media_category": "{{temp.capture.media_category}}",
+        "format": "{{temp.capture.format}}",
+        "content_type": "{{temp.capture.content_type}}",
+        "size_bytes": "{{temp.capture.size_bytes}}",
+        "width": "{{temp.capture.width}}",
+        "height": "{{temp.capture.height}}",
+        "duration_ms": "{{temp.capture.duration_ms}}",
+        "page_http_status": "{{temp.capture.page_http_status}}",
+        "captured_at": "{{temp.capture.captured_at}}",
+        "final_url": "{{temp.capture.final_url}}",
+        "media_sha256": "{{temp.capture.media_sha256}}",
+        "download_url": "{{temp.capture.download_url}}",
+        "expires_at": "{{temp.capture.expires_at}}",
+        "error_code": "{{temp.capture.error_code}}",
+        "fileName": "capture-{{temp.capture.id}}.{{temp.capture.format}}",
+        "data": "{{body}}"
+      }
+    }
+  }
+]

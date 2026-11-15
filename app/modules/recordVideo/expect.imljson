@@ -1,0 +1,131 @@
+[
+  {
+    "name": "url",
+    "type": "url",
+    "label": "URL",
+    "required": true,
+    "help": "The full address of the page, such as `https://example.com/pricing`."
+  },
+  {
+    "name": "format",
+    "type": "select",
+    "label": "Format",
+    "options": [
+      {
+        "label": "MP4",
+        "value": "mp4"
+      },
+      {
+        "label": "WebM",
+        "value": "webm"
+      },
+      {
+        "label": "MOV",
+        "value": "mov"
+      },
+      {
+        "label": "GIF",
+        "value": "gif"
+      }
+    ],
+    "default": "mp4"
+  },
+  {
+    "name": "device_category",
+    "type": "select",
+    "label": "Device",
+    "options": [
+      {
+        "label": "Desktop",
+        "value": "desktop"
+      },
+      {
+        "label": "Mobile",
+        "value": "mobile"
+      }
+    ],
+    "default": "desktop"
+  },
+  {
+    "name": "emulated_device",
+    "type": "text",
+    "label": "Emulated device",
+    "help": "For a mobile capture: a device such as \"iPhone 15 Pro\" or \"Pixel 7\". Default \"iPhone 13\"."
+  },
+  {
+    "name": "viewport",
+    "type": "collection",
+    "label": "Window size",
+    "help": "In CSS pixels, 250 to 7680. Default 1920 × 1080.",
+    "spec": [
+      {
+        "name": "width",
+        "type": "uinteger",
+        "label": "Width"
+      },
+      {
+        "name": "height",
+        "type": "uinteger",
+        "label": "Height"
+      }
+    ]
+  },
+  {
+    "name": "block_ads",
+    "type": "boolean",
+    "label": "Block ads",
+    "default": true
+  },
+  {
+    "name": "block_pop_ups",
+    "type": "boolean",
+    "label": "Block pop-ups and cookie banners",
+    "default": true
+  },
+  {
+    "name": "selectors",
+    "type": "collection",
+    "label": "Page elements",
+    "spec": [
+      {
+        "name": "hide",
+        "type": "text",
+        "label": "Hide elements",
+        "help": "Comma-separated CSS selectors to hide first, such as `.chat-widget, #banner`."
+      },
+      {
+        "name": "click",
+        "type": "text",
+        "label": "Click element",
+        "help": "A CSS selector to click first, such as a \"Load more\" button."
+      }
+    ]
+  },
+  {
+    "name": "locale",
+    "type": "text",
+    "label": "Locale",
+    "help": "Such as `en-GB` or `de-DE`."
+  },
+  {
+    "name": "time_zone",
+    "type": "text",
+    "label": "Time zone",
+    "help": "Such as `Europe/London`."
+  },
+  {
+    "name": "proxy",
+    "type": "collection",
+    "label": "Capture from another country",
+    "help": "Needs a plan with proxy locations.",
+    "spec": [
+      {
+        "name": "country",
+        "type": "text",
+        "label": "Country",
+        "required": true,
+        "help": "Such as `gb` or `de`."
+      }
+    ]
+  }
+]

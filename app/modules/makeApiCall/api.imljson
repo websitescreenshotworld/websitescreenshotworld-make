@@ -1,0 +1,25 @@
+{
+  "url": "{{parameters.url}}",
+  "method": "{{parameters.method}}",
+  "headers": {
+    "{{...}}": "{{toCollection(parameters.headers, 'key', 'value')}}",
+    "x-api-key": "{{connection.apiKey}}"
+  },
+  "qs": {
+    "{{...}}": "{{toCollection(parameters.qs, 'key', 'value')}}"
+  },
+  "body": "{{parameters.body}}",
+  "type": "json",
+  "response": {
+    "output": {
+      "body": "{{body}}",
+      "headers": "{{headers}}",
+      "statusCode": "{{statusCode}}"
+    }
+  },
+  "log": {
+    "sanitize": [
+      "request.headers.x-api-key"
+    ]
+  }
+}
