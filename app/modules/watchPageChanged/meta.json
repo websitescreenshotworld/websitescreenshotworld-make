@@ -1,6 +1,6 @@
 {
   "typeId": 10,
-  "label": "Watch Page Changes",
+  "label": "Watch page changes",
   "description": "Triggers when a scheduled page looks different from its previous capture, with the change percentage.",
   "webhook": "pageChanged"
 }

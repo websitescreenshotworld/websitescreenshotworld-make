@@ -4,7 +4,7 @@
     "type": "text",
     "label": "URL",
     "required": true,
-    "help": "A path relative to `https://api.websitescreenshotworld.com/instant-snap/v1`, such as `/captures` or `/account`."
+    "help": "A path relative to `https://api.websitescreenshotworld.com/instant-snap/v1`. For example: `/captures` or `/account`."
   },
   {
     "name": "method",

@@ -1,6 +1,6 @@
 {
   "typeId": 10,
-  "label": "Watch Sitemap Runs Completed",
+  "label": "Watch completed sitemap runs",
   "description": "Triggers when every page of a sitemap schedule run has been captured or skipped.",
   "webhook": "sitemapRunCompleted"
 }

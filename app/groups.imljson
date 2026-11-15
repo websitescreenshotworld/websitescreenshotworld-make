@@ -1,5 +1,16 @@
 [
   {
+    "label": "Events",
+    "modules": [
+      "watchCaptureSucceeded",
+      "watchCaptureFailed",
+      "watchPageChanged",
+      "watchDeliveryCompleted",
+      "watchSchedulePaused",
+      "watchSitemapRunCompleted"
+    ]
+  },
+  {
     "label": "Captures",
     "modules": [
       "takeScreenshot",
@@ -13,17 +24,6 @@
     "label": "Auto Schedule",
     "modules": [
       "captureScheduledPageNow"
-    ]
-  },
-  {
-    "label": "Events",
-    "modules": [
-      "watchCaptureSucceeded",
-      "watchCaptureFailed",
-      "watchPageChanged",
-      "watchDeliveryCompleted",
-      "watchSchedulePaused",
-      "watchSitemapRunCompleted"
     ]
   },
   {

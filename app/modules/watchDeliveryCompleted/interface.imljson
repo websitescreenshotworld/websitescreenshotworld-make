@@ -5,19 +5,19 @@
     "label": "Event ID"
   },
   {
-    "name": "event",
+    "name": "type",
     "type": "text",
-    "label": "Event"
-  },
-  {
-    "name": "product",
-    "type": "text",
-    "label": "Product"
+    "label": "Event type"
   },
   {
     "name": "created_at",
     "type": "date",
     "label": "Created at"
+  },
+  {
+    "name": "product",
+    "type": "text",
+    "label": "Product"
   },
   {
     "name": "data",
@@ -26,8 +26,8 @@
     "spec": [
       {
         "name": "id",
-        "label": "Capture ID",
-        "type": "text"
+        "type": "text",
+        "label": "Capture ID"
       },
       {
         "name": "schedule_id",
@@ -41,58 +41,73 @@
       },
       {
         "name": "url",
-        "label": "URL",
-        "type": "url"
+        "type": "url",
+        "label": "URL"
       },
       {
         "name": "status",
-        "label": "Status",
-        "type": "text"
+        "type": "text",
+        "label": "Status"
       },
       {
         "name": "media_category",
-        "label": "Media category",
-        "type": "text"
+        "type": "text",
+        "label": "Media category"
       },
       {
         "name": "format",
-        "label": "Format",
-        "type": "text"
+        "type": "text",
+        "label": "Format"
       },
       {
         "name": "page_http_status",
-        "label": "Page HTTP status",
-        "type": "number"
+        "type": "uinteger",
+        "label": "Page HTTP status"
       },
       {
         "name": "captured_at",
-        "label": "Captured at",
-        "type": "date"
+        "type": "date",
+        "label": "Captured at"
       },
       {
         "name": "final_url",
-        "label": "Final URL",
-        "type": "url"
+        "type": "url",
+        "label": "Final URL"
       },
       {
         "name": "media_sha256",
-        "label": "Media SHA-256",
-        "type": "text"
+        "type": "text",
+        "label": "SHA-256 of the file"
       },
       {
         "name": "page_source",
-        "label": "Page source",
         "type": "collection",
+        "label": "Page source",
         "spec": [
           {
             "name": "format",
-            "label": "Format",
-            "type": "text"
+            "type": "text",
+            "label": "Format"
+          },
+          {
+            "name": "content_type",
+            "type": "text",
+            "label": "Content type"
+          },
+          {
+            "name": "size_bytes",
+            "type": "uinteger",
+            "label": "Size (bytes)"
           },
           {
             "name": "sha256",
-            "label": "Sha256",
-            "type": "text"
+            "type": "text",
+            "label": "SHA-256"
+          },
+          {
+            "name": "download_url",
+            "type": "url",
+            "label": "Download URL"
           }
         ]
       },
@@ -111,7 +126,7 @@
             {
               "name": "slot",
               "label": "Slot",
-              "type": "number"
+              "type": "uinteger"
             },
             {
               "name": "name",
@@ -125,13 +140,13 @@
             },
             {
               "name": "status",
-              "label": "Status",
-              "type": "text"
+              "type": "text",
+              "label": "Status"
             },
             {
               "name": "completed_at",
-              "label": "Completed at",
-              "type": "date"
+              "type": "text",
+              "label": "Completed at (ISO 8601)"
             }
           ]
         }

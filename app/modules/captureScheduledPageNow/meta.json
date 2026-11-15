@@ -1,6 +1,6 @@
 {
   "typeId": 4,
-  "label": "Capture a Scheduled Page Now",
+  "label": "Capture a scheduled page now",
   "description": "Starts the capture of a web page set up in Auto Schedule now. The result arrives as a capture event.",
   "connection": "autoSchedule"
 }

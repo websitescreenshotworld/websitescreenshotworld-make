@@ -5,19 +5,19 @@
     "label": "Event ID"
   },
   {
-    "name": "event",
+    "name": "type",
     "type": "text",
-    "label": "Event"
-  },
-  {
-    "name": "product",
-    "type": "text",
-    "label": "Product"
+    "label": "Event type"
   },
   {
     "name": "created_at",
     "type": "date",
     "label": "Created at"
+  },
+  {
+    "name": "product",
+    "type": "text",
+    "label": "Product"
   },
   {
     "name": "data",
@@ -36,8 +36,8 @@
       },
       {
         "name": "url",
-        "label": "URL",
-        "type": "url"
+        "type": "url",
+        "label": "URL"
       },
       {
         "name": "reason",

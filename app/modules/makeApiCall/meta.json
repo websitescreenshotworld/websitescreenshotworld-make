@@ -1,6 +1,6 @@
 {
   "typeId": 12,
-  "label": "Make an API Call",
-  "description": "Performs any Instant Snap API call with your key.",
+  "label": "Make an API call",
+  "description": "Performs an arbitrary authorized API call.",
   "connection": "instantSnap"
 }

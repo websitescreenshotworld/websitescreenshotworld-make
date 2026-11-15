@@ -16,6 +16,7 @@
     "pages_queued": 50,
     "pages_succeeded": 48,
     "pages_failed": 2,
+    "pages_stopped": 0,
     "pages_over_limit": 30,
     "pages_over_quota": 0,
     "message": null

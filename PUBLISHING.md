@@ -54,4 +54,17 @@ deleted (only hidden), so remove anything that is only for testing first.
 Submitted 15 Nov 2026. Scenarios linked: actions 8592379; triggers 8592868 (failed), 8592784 (succeeded), 8592841
 (deliveries), 8592824 (page changes), 8592884 (paused), 8592898 (sitemap runs); API error 8593353.
 
+## Review rounds
+
+1. 15 Nov 2026, Make's AI review (AppBot): the universal module's URL must be fixed to the API host; the key belongs
+   in the Base (the download from the media host blanks it: a request's own header replaces the Base's); outputs
+   spread the API's answer with dates parsed (`parseDate`); request bodies spread the parameters; every unsuccessful
+   capture must raise an error; one type per field across triggers; sentence-case labels; Events group first; HTTP
+   errors keep the Base message. All fixed and re-run the same day. Answered, not changed: no Auto Schedule endpoint
+   lists web pages yet (so no RPC dropdown), "Make an API call" stays on Instant Snap (the Auto Schedule API's other
+   endpoints are covered by modules and webhooks), dates inside a delivery's destinations stay ISO 8601 text
+   (custom IML functions are not enabled by default), and video has no full-page option (it always scrolls the
+   whole page). Make computes a webhook's output when the event arrives, so events queued before an upload keep
+   the old output: run the trigger with "Wait for new data" and send a fresh event.
+
 After approval, every change to the app (new modules, code, logo or theme) needs Make's approval again.

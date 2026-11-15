@@ -1,9 +1,8 @@
 {
-  "url": "{{parameters.url}}",
+  "url": "https://api.websitescreenshotworld.com/instant-snap/v1/{{parameters.url}}",
   "method": "{{parameters.method}}",
   "headers": {
-    "{{...}}": "{{toCollection(parameters.headers, 'key', 'value')}}",
-    "x-api-key": "{{connection.apiKey}}"
+    "{{...}}": "{{toCollection(parameters.headers, 'key', 'value')}}"
   },
   "qs": {
     "{{...}}": "{{toCollection(parameters.qs, 'key', 'value')}}"
@@ -16,10 +15,5 @@
       "headers": "{{headers}}",
       "statusCode": "{{statusCode}}"
     }
-  },
-  "log": {
-    "sanitize": [
-      "request.headers.x-api-key"
-    ]
   }
 }

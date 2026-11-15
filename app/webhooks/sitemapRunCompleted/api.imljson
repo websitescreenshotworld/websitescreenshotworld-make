@@ -8,10 +8,12 @@
     }
   },
   "output": {
-    "id": "{{body.id}}",
-    "event": "{{body.type}}",
-    "product": "{{body.product}}",
-    "created_at": "{{body.created_at}}",
-    "data": "{{body.data}}"
+    "{{...}}": "{{body}}",
+    "created_at": "{{if(body.created_at, parseDate(body.created_at, 'YYYY-MM-DDTHH:mm:ss.SSSZ'), body.created_at)}}",
+    "data": {
+      "{{...}}": "{{body.data}}",
+      "run_at": "{{if(body.data.run_at, parseDate(body.data.run_at, 'YYYY-MM-DDTHH:mm:ss.SSSZ'), body.data.run_at)}}",
+      "completed_at": "{{if(body.data.completed_at, parseDate(body.data.completed_at, 'YYYY-MM-DDTHH:mm:ss.SSSZ'), body.data.completed_at)}}"
+    }
   }
 }

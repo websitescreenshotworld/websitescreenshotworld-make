@@ -1,7 +1,8 @@
 {
   "baseUrl": "{{connection.apiBase}}",
   "headers": {
-    "user-agent": "websitescreenshotworld-make"
+    "user-agent": "websitescreenshotworld-make",
+    "x-api-key": "{{connection.apiKey}}"
   },
   "response": {
     "error": {

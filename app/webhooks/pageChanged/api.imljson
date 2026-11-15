@@ -8,10 +8,11 @@
     }
   },
   "output": {
-    "id": "{{body.id}}",
-    "event": "{{body.type}}",
-    "product": "{{body.product}}",
-    "created_at": "{{body.created_at}}",
-    "data": "{{body.data}}"
+    "{{...}}": "{{body}}",
+    "created_at": "{{if(body.created_at, parseDate(body.created_at, 'YYYY-MM-DDTHH:mm:ss.SSSZ'), body.created_at)}}",
+    "data": {
+      "{{...}}": "{{body.data}}",
+      "captured_at": "{{if(body.data.captured_at, parseDate(body.data.captured_at, 'YYYY-MM-DDTHH:mm:ss.SSSZ'), body.data.captured_at)}}"
+    }
   }
 }

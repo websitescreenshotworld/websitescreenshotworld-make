@@ -1,8 +1,18 @@
 [
   {
+    "name": "success",
+    "type": "boolean",
+    "label": "Success"
+  },
+  {
     "name": "id",
     "type": "text",
     "label": "Capture ID"
+  },
+  {
+    "name": "url",
+    "type": "url",
+    "label": "URL"
   },
   {
     "name": "status",
@@ -10,9 +20,9 @@
     "label": "Status"
   },
   {
-    "name": "url",
-    "type": "url",
-    "label": "URL"
+    "name": "response_type",
+    "type": "text",
+    "label": "Response type"
   },
   {
     "name": "media_category",
@@ -80,9 +90,83 @@
     "label": "File expires at"
   },
   {
+    "name": "page_source",
+    "type": "collection",
+    "label": "Page source",
+    "spec": [
+      {
+        "name": "format",
+        "type": "text",
+        "label": "Format"
+      },
+      {
+        "name": "content_type",
+        "type": "text",
+        "label": "Content type"
+      },
+      {
+        "name": "size_bytes",
+        "type": "uinteger",
+        "label": "Size (bytes)"
+      },
+      {
+        "name": "sha256",
+        "type": "text",
+        "label": "SHA-256"
+      },
+      {
+        "name": "download_url",
+        "type": "url",
+        "label": "Download URL"
+      }
+    ]
+  },
+  {
+    "name": "s3_delivery",
+    "type": "collection",
+    "label": "Bucket delivery",
+    "spec": [
+      {
+        "name": "status",
+        "type": "text",
+        "label": "Status"
+      },
+      {
+        "name": "bucket",
+        "type": "text",
+        "label": "Bucket"
+      },
+      {
+        "name": "key",
+        "type": "text",
+        "label": "Key"
+      },
+      {
+        "name": "access_key_id",
+        "type": "text",
+        "label": "Access key ID (last four characters)"
+      },
+      {
+        "name": "error",
+        "type": "text",
+        "label": "Error"
+      }
+    ]
+  },
+  {
+    "name": "callback_url",
+    "type": "url",
+    "label": "Callback URL"
+  },
+  {
     "name": "error_code",
     "type": "text",
     "label": "Error code"
+  },
+  {
+    "name": "spec_version",
+    "type": "text",
+    "label": "API version"
   },
   {
     "name": "fileName",

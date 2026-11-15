@@ -1,22 +1,11 @@
 {
   "url": "/web-pages/{{encodeURL(parameters.web_page_id)}}/trigger-now",
   "method": "POST",
-  "headers": {
-    "x-api-key": "{{connection.apiKey}}"
-  },
   "body": {},
   "response": {
     "output": {
-      "status": "{{body.status}}",
-      "web_page_id": "{{body.web_page_id}}",
-      "triggered_by": "{{body.triggered_by}}",
-      "triggered_at": "{{body.triggered_at}}",
-      "message": "{{body.message}}"
+      "{{...}}": "{{body}}",
+      "triggered_at": "{{if(body.triggered_at, parseDate(body.triggered_at, 'YYYY-MM-DDTHH:mm:ss.SSSZ'), body.triggered_at)}}"
     }
-  },
-  "log": {
-    "sanitize": [
-      "request.headers.x-api-key"
-    ]
   }
 }

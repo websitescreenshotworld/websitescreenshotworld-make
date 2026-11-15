@@ -1,6 +1,6 @@
 {
   "typeId": 4,
-  "label": "Get Page Content",
+  "label": "Get page content",
   "description": "Reads a web page's main content as Markdown or plain text, without menus, cookie banners or scripts.",
   "connection": "instantSnap"
 }

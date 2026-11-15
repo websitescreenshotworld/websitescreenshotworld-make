@@ -1,7 +1,9 @@
 {
+  "success": true,
   "id": "3f6c2a1e-9b8d-4c7e-a5f4-1d2e3c4b5a69",
-  "status": "succeeded",
   "url": "https://example.com",
+  "status": "succeeded",
+  "response_type": "json",
   "media_category": "content",
   "format": "markdown",
   "content_type": "text/markdown; charset=utf-8",
@@ -15,6 +17,10 @@
   "media_sha256": "9f2c000000000000000000000000000000000000000000000000000000000000",
   "download_url": "https://media.websitescreenshotworld.com/example.md",
   "expires_at": "2026-09-27T10:30:04.512Z",
+  "page_source": null,
+  "s3_delivery": null,
+  "callback_url": null,
   "error_code": null,
+  "spec_version": "v1",
   "content": "# Example Domain\n\nThis domain is for use in documentation examples."
 }

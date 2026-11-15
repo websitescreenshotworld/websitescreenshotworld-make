@@ -5,19 +5,19 @@
     "label": "Event ID"
   },
   {
-    "name": "event",
+    "name": "type",
     "type": "text",
-    "label": "Event"
-  },
-  {
-    "name": "product",
-    "type": "text",
-    "label": "Product"
+    "label": "Event type"
   },
   {
     "name": "created_at",
     "type": "date",
     "label": "Created at"
+  },
+  {
+    "name": "product",
+    "type": "text",
+    "label": "Product"
   },
   {
     "name": "data",
@@ -46,8 +46,8 @@
       },
       {
         "name": "status",
-        "label": "Status",
-        "type": "text"
+        "type": "text",
+        "label": "Status"
       },
       {
         "name": "run_at",
@@ -62,37 +62,42 @@
       {
         "name": "pages_listed",
         "label": "Pages listed",
-        "type": "number"
+        "type": "uinteger"
       },
       {
         "name": "pages_matched",
         "label": "Pages matched",
-        "type": "number"
+        "type": "uinteger"
       },
       {
         "name": "pages_queued",
         "label": "Pages queued",
-        "type": "number"
+        "type": "uinteger"
       },
       {
         "name": "pages_succeeded",
         "label": "Pages succeeded",
-        "type": "number"
+        "type": "uinteger"
       },
       {
         "name": "pages_failed",
         "label": "Pages failed",
-        "type": "number"
+        "type": "uinteger"
+      },
+      {
+        "name": "pages_stopped",
+        "label": "Pages stopped",
+        "type": "uinteger"
       },
       {
         "name": "pages_over_limit",
         "label": "Pages over limit",
-        "type": "number"
+        "type": "uinteger"
       },
       {
         "name": "pages_over_quota",
         "label": "Pages over quota",
-        "type": "number"
+        "type": "uinteger"
       },
       {
         "name": "message",

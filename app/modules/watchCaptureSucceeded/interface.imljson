@@ -5,19 +5,19 @@
     "label": "Event ID"
   },
   {
-    "name": "event",
+    "name": "type",
     "type": "text",
-    "label": "Event"
-  },
-  {
-    "name": "product",
-    "type": "text",
-    "label": "Product"
+    "label": "Event type"
   },
   {
     "name": "created_at",
     "type": "date",
     "label": "Created at"
+  },
+  {
+    "name": "product",
+    "type": "text",
+    "label": "Product"
   },
   {
     "name": "data",
@@ -26,8 +26,8 @@
     "spec": [
       {
         "name": "id",
-        "label": "Capture ID",
-        "type": "text"
+        "type": "text",
+        "label": "Capture ID"
       },
       {
         "name": "schedule_id",
@@ -41,58 +41,73 @@
       },
       {
         "name": "url",
-        "label": "URL",
-        "type": "url"
+        "type": "url",
+        "label": "URL"
       },
       {
         "name": "status",
-        "label": "Status",
-        "type": "text"
+        "type": "text",
+        "label": "Status"
       },
       {
         "name": "media_category",
-        "label": "Media category",
-        "type": "text"
+        "type": "text",
+        "label": "Media category"
       },
       {
         "name": "format",
-        "label": "Format",
-        "type": "text"
+        "type": "text",
+        "label": "Format"
       },
       {
         "name": "page_http_status",
-        "label": "Page HTTP status",
-        "type": "number"
+        "type": "uinteger",
+        "label": "Page HTTP status"
       },
       {
         "name": "captured_at",
-        "label": "Captured at",
-        "type": "date"
+        "type": "date",
+        "label": "Captured at"
       },
       {
         "name": "final_url",
-        "label": "Final URL",
-        "type": "url"
+        "type": "url",
+        "label": "Final URL"
       },
       {
         "name": "media_sha256",
-        "label": "Media SHA-256",
-        "type": "text"
+        "type": "text",
+        "label": "SHA-256 of the file"
       },
       {
         "name": "page_source",
-        "label": "Page source",
         "type": "collection",
+        "label": "Page source",
         "spec": [
           {
             "name": "format",
-            "label": "Format",
-            "type": "text"
+            "type": "text",
+            "label": "Format"
+          },
+          {
+            "name": "content_type",
+            "type": "text",
+            "label": "Content type"
+          },
+          {
+            "name": "size_bytes",
+            "type": "uinteger",
+            "label": "Size (bytes)"
           },
           {
             "name": "sha256",
-            "label": "Sha256",
-            "type": "text"
+            "type": "text",
+            "label": "SHA-256"
+          },
+          {
+            "name": "download_url",
+            "type": "url",
+            "label": "Download URL"
           }
         ]
       },
@@ -103,58 +118,85 @@
       },
       {
         "name": "response_type",
-        "label": "Response type",
-        "type": "text"
+        "type": "text",
+        "label": "Response type"
       },
       {
         "name": "content_type",
-        "label": "Content type",
-        "type": "text"
+        "type": "text",
+        "label": "Content type"
       },
       {
         "name": "size_bytes",
-        "label": "Size bytes",
-        "type": "number"
+        "type": "uinteger",
+        "label": "Size (bytes)"
       },
       {
         "name": "width",
-        "label": "Width",
-        "type": "number"
+        "type": "uinteger",
+        "label": "Width"
       },
       {
         "name": "height",
-        "label": "Height",
-        "type": "number"
+        "type": "uinteger",
+        "label": "Height"
       },
       {
         "name": "duration_ms",
-        "label": "Duration ms",
-        "type": "number"
+        "type": "uinteger",
+        "label": "Duration (ms)"
       },
       {
         "name": "expires_at",
-        "label": "Expires at",
-        "type": "date"
+        "type": "date",
+        "label": "File expires at"
       },
       {
         "name": "s3_delivery",
-        "label": "S3 delivery",
-        "type": "text"
+        "type": "collection",
+        "label": "Bucket delivery",
+        "spec": [
+          {
+            "name": "status",
+            "type": "text",
+            "label": "Status"
+          },
+          {
+            "name": "bucket",
+            "type": "text",
+            "label": "Bucket"
+          },
+          {
+            "name": "key",
+            "type": "text",
+            "label": "Key"
+          },
+          {
+            "name": "access_key_id",
+            "type": "text",
+            "label": "Access key ID (last four characters)"
+          },
+          {
+            "name": "error",
+            "type": "text",
+            "label": "Error"
+          }
+        ]
       },
       {
         "name": "callback_url",
-        "label": "Callback URL",
-        "type": "url"
+        "type": "url",
+        "label": "Callback URL"
       },
       {
         "name": "error_code",
-        "label": "Error code",
-        "type": "text"
+        "type": "text",
+        "label": "Error code"
       },
       {
         "name": "spec_version",
-        "label": "Spec version",
-        "type": "text"
+        "type": "text",
+        "label": "API version"
       }
     ]
   }

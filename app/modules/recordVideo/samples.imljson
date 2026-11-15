@@ -1,7 +1,9 @@
 {
+  "success": true,
   "id": "3f6c2a1e-9b8d-4c7e-a5f4-1d2e3c4b5a69",
-  "status": "succeeded",
   "url": "https://example.com",
+  "status": "succeeded",
+  "response_type": "json",
   "media_category": "video",
   "format": "mp4",
   "content_type": "video/mp4",
@@ -15,7 +17,11 @@
   "media_sha256": "9f2c000000000000000000000000000000000000000000000000000000000000",
   "download_url": "https://media.websitescreenshotworld.com/example.mp4",
   "expires_at": "2026-09-27T10:30:04.512Z",
+  "page_source": null,
+  "s3_delivery": null,
+  "callback_url": null,
   "error_code": null,
+  "spec_version": "v1",
   "fileName": "capture-3f6c2a1e-9b8d-4c7e-a5f4-1d2e3c4b5a69.mp4",
   "data": "IMTBuffer(2841600, binary, 9f2c0000)"
 }

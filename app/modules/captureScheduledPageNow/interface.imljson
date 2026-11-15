@@ -1,5 +1,10 @@
 [
   {
+    "name": "success",
+    "type": "boolean",
+    "label": "Success"
+  },
+  {
     "name": "status",
     "type": "text",
     "label": "Status (triggered or already_pending)"
@@ -12,7 +17,7 @@
   {
     "name": "triggered_by",
     "type": "text",
-    "label": "Triggered by"
+    "label": "Triggered by (api or ui)"
   },
   {
     "name": "triggered_at",

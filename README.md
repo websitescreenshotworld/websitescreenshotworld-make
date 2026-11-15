@@ -11,22 +11,30 @@ Make's component files under `app/`, and `npm run upload` sends them to Make wit
 
 | Module | Type | Connection |
 |---|---|---|
-| Take a Screenshot, Create a PDF, Record a Video, Get Page Content | Action | Instant Snap |
-| Get a Capture | Action | Instant Snap |
-| Capture a Scheduled Page Now | Action | Auto Schedule |
-| Watch Captures Succeeded, Watch Captures Failed, Watch Page Changes, Watch Deliveries Completed, Watch Schedules Paused, Watch Sitemap Runs Completed | Instant trigger | either |
-| Make an API Call | Universal | Instant Snap |
+| Take a screenshot, Create a PDF, Record a video, Get page content | Action | Instant Snap |
+| Get a capture | Action | Instant Snap |
+| Capture a scheduled page now | Action | Auto Schedule |
+| Watch succeeded captures, Watch failed captures, Watch page changes, Watch completed deliveries, Watch paused schedules, Watch completed sitemap runs | Instant trigger | either |
+| Make an API call | Universal | Instant Snap |
 
 - **Connections.** One per product, because each key works only with its own API. A connection checks its key
   with `GET /account` (no capture is spent) and is named like "you@example.com (Laptop)": the member who created
   the key and the key's name, never the key.
 - **Captures.** A capture module starts the capture asynchronously, reads it every 3 seconds until it has finished
-  (2 minutes for images, PDFs and text, 4 for video), then fetches the file or the text from its signed link. The
-  key is never sent to that link: it is set on each API request, not in the Base. A failed capture stops the module
-  with the API's reason. A capture still running at the end is returned with its ID for "Get a Capture".
+  (2 minutes for images, PDFs and text, 4 for video), then fetches the file or the text from its signed link, and
+  outputs the capture as the API returned it (dates parsed) with the file. A capture that did not succeed (failed,
+  timed out, expired, or still running at the end) stops the module with the reason and the capture's ID. The
+  request body is every parameter the user filled in, under the API's own name.
+- **The key.** Set once in the Base, like the API address and the error message, so every module and webhook
+  inherits it. The download from a capture's signed link is on another host and must never receive the key: that
+  one request sets `x-api-key` to empty, which replaces the inherited header (checked live: with it, the API answers
+  401). "Make an API call" appends the user's path to the fixed Instant Snap address, so a full URL typed by the
+  user cannot take the key elsewhere.
 - **Events.** Each trigger has its own webhook. Creating the webhook in a scenario adds an endpoint for that one
   event to the organization (`POST /webhook-endpoints`, shown under Developer Tools, Webhooks as "Make: ...");
-  deleting it removes the endpoint. Other event types, such as the dashboard's test delivery, are acknowledged and
+  deleting it removes the endpoint. A trigger outputs the event as the API sent it, with its dates parsed (dates
+  inside an array, such as a delivery's destinations, stay ISO 8601 text: parsing them needs a custom IML function,
+  which Make enables only on request). Other event types, such as the dashboard's test delivery, are acknowledged and
   dropped. Make gives an app no access to a delivery's raw bytes, so the `X-WSW-Signature` header cannot be
   checked here; the endpoint's address is Make's unguessable webhook URL, and it is hidden in the logs.
 
@@ -41,9 +49,10 @@ npm run check      # app/ up to date, Make's editor schemas, tests
 ```
 
 `npm run validate` checks every component file against the JSON schemas Make's own editor uses
-(`tools/editor-schemas/`). The tests check what the schemas cannot: the key never reaches a download link and is
-hidden in every log, detach deletes exactly what attach created, outputs match interfaces, and the upload script
-creates, binds and re-reads everything (against an in-memory stand-in for Make).
+(`tools/editor-schemas/`). The tests check what the schemas cannot: the key is set only in the Base and blanked on
+every download link, every other request stays on the API, detach deletes exactly what attach created, outputs
+spread the API's answer with dates parsed, fields are typed the same everywhere, and the upload script creates,
+binds and re-reads everything (against an in-memory stand-in for Make).
 
 ## Upload to Make
 

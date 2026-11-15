@@ -1,6 +1,6 @@
 {
   "typeId": 10,
-  "label": "Watch Schedules Paused",
+  "label": "Watch paused schedules",
   "description": "Triggers when a schedule is paused, for example because the plan has no captures left.",
   "webhook": "schedulePaused"
 }

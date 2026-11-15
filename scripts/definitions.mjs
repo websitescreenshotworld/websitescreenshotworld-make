@@ -16,24 +16,33 @@ export const APP = {
   audience: 'global',
 };
 
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 const INSTANT_SNAP_BASE = 'https://api.websitescreenshotworld.com/instant-snap/v1';
 const AUTO_SCHEDULE_BASE = 'https://autoapi.websitescreenshotworld.com/auto-schedule/v1';
 
-/** Every request that carries the key sends it in this header, and every log hides it. */
-const KEY_HEADER = { 'x-api-key': '{{connection.apiKey}}' };
+/** The key travels in this header, set once in the Base; every log hides it. */
 const SANITIZE = ['request.headers.x-api-key'];
+
+/**
+ * Set on the one request that goes to another host: a capture's file is downloaded from a signed link on the media
+ * host, which must never receive the key. A request's own header replaces the Base's (checked live on 15 Nov 2026:
+ * with this override the API answered 401 "X-Api-Key is invalid").
+ */
+const NO_KEY = { 'x-api-key': '' };
 
 // The API answers a refusal with { success: false, error_code, error_message }.
 const ERROR_MESSAGE =
   "[{{statusCode}}] {{ifempty(body.error_message, 'The request was refused.')}} ({{ifempty(body.error_code, 'no error code')}})";
 
 /**
- * The Base: the connection's API address and the error message. The key is NOT set here but on each request,
- * because a capture's file is downloaded from a signed link on another host, which must never receive the key.
+ * The Base: the connection's API address, the key, the error message and the log rule, inherited by every module
+ * and webhook. Both connections store apiKey and apiBase, so the same Base serves both products.
  */
 export const BASE = {
   baseUrl: '{{connection.apiBase}}',
-  headers: { 'user-agent': 'websitescreenshotworld-make' },
+  headers: { 'user-agent': 'websitescreenshotworld-make', 'x-api-key': '{{connection.apiKey}}' },
   response: { error: { message: ERROR_MESSAGE } },
   log: { sanitize: SANITIZE },
 };
@@ -83,31 +92,22 @@ export const CONNECTIONS = {
 
 const UNFINISHED = "temp.status === 'queued' || temp.status === 'running' || temp.status === 'pending'";
 
-/** The capture's details, as every capture module outputs them. `from` is where the capture object is. */
-const captureFields = (from) => ({
-  id: `{{${from}.id}}`,
-  status: `{{${from}.status}}`,
-  url: `{{${from}.url}}`,
-  media_category: `{{${from}.media_category}}`,
-  format: `{{${from}.format}}`,
-  content_type: `{{${from}.content_type}}`,
-  size_bytes: `{{${from}.size_bytes}}`,
-  width: `{{${from}.width}}`,
-  height: `{{${from}.height}}`,
-  duration_ms: `{{${from}.duration_ms}}`,
-  page_http_status: `{{${from}.page_http_status}}`,
-  captured_at: `{{${from}.captured_at}}`,
-  final_url: `{{${from}.final_url}}`,
-  media_sha256: `{{${from}.media_sha256}}`,
-  download_url: `{{${from}.download_url}}`,
-  expires_at: `{{${from}.expires_at}}`,
-  error_code: `{{${from}.error_code}}`,
-});
+/** The API's dates are ISO 8601 in UTC with milliseconds, such as 2026-09-26T10:30:04.512Z. */
+const ISO_8601 = 'YYYY-MM-DDTHH:mm:ss.SSSZ';
 
-const CAPTURE_INTERFACE = [
+/** IML that turns the API's date at `path` into a Make date, and leaves an empty one empty. */
+export const dateOf = (path) => `{{if(${path}, parseDate(${path}, '${ISO_8601}'), ${path})}}`;
+
+/** The API's examples (from the spec repository's fixtures), used as the modules' samples. */
+const apiExample = (name) => JSON.parse(readFileSync(join(import.meta.dirname, '..', 'samples', 'api', `${name}.json`), 'utf8'));
+
+/** A capture as GET /captures/{id} returns it, field by field, with the types Make should show. */
+export const CAPTURE_INTERFACE = [
+  { name: 'success', type: 'boolean', label: 'Success' },
   { name: 'id', type: 'text', label: 'Capture ID' },
-  { name: 'status', type: 'text', label: 'Status' },
   { name: 'url', type: 'url', label: 'URL' },
+  { name: 'status', type: 'text', label: 'Status' },
+  { name: 'response_type', type: 'text', label: 'Response type' },
   { name: 'media_category', type: 'text', label: 'Media category' },
   { name: 'format', type: 'text', label: 'Format' },
   { name: 'content_type', type: 'text', label: 'Content type' },
@@ -121,33 +121,48 @@ const CAPTURE_INTERFACE = [
   { name: 'media_sha256', type: 'text', label: 'SHA-256 of the file' },
   { name: 'download_url', type: 'url', label: 'Download URL (valid for 60 minutes)' },
   { name: 'expires_at', type: 'date', label: 'File expires at' },
+  {
+    name: 'page_source',
+    type: 'collection',
+    label: 'Page source',
+    spec: [
+      { name: 'format', type: 'text', label: 'Format' },
+      { name: 'content_type', type: 'text', label: 'Content type' },
+      { name: 'size_bytes', type: 'uinteger', label: 'Size (bytes)' },
+      { name: 'sha256', type: 'text', label: 'SHA-256' },
+      { name: 'download_url', type: 'url', label: 'Download URL' },
+    ],
+  },
+  {
+    name: 's3_delivery',
+    type: 'collection',
+    label: 'Bucket delivery',
+    spec: [
+      { name: 'status', type: 'text', label: 'Status' },
+      { name: 'bucket', type: 'text', label: 'Bucket' },
+      { name: 'key', type: 'text', label: 'Key' },
+      { name: 'access_key_id', type: 'text', label: 'Access key ID (last four characters)' },
+      { name: 'error', type: 'text', label: 'Error' },
+    ],
+  },
+  { name: 'callback_url', type: 'url', label: 'Callback URL' },
   { name: 'error_code', type: 'text', label: 'Error code' },
+  { name: 'spec_version', type: 'text', label: 'API version' },
 ];
+
+/** The capture as the API returned it, with its two dates parsed. `from` is where the capture object is. */
+const captureOutput = (from) => ({
+  '{{...}}': `{{${from}}}`,
+  captured_at: dateOf(`${from}.captured_at`),
+  expires_at: dateOf(`${from}.expires_at`),
+});
 
 const FILE_INTERFACE = [
   { name: 'fileName', type: 'filename', label: 'File name', semantic: 'file:name' },
   { name: 'data', type: 'buffer', label: 'Data', semantic: 'file:data' },
 ];
 
-const CAPTURE_SAMPLE = {
-  id: '3f6c2a1e-9b8d-4c7e-a5f4-1d2e3c4b5a69',
-  status: 'succeeded',
-  url: 'https://example.com',
-  media_category: 'image',
-  format: 'png',
-  content_type: 'image/png',
-  size_bytes: 482113,
-  width: 1920,
-  height: 1080,
-  duration_ms: 4210,
-  page_http_status: 200,
-  captured_at: '2026-09-26T10:30:04.512Z',
-  final_url: null,
-  media_sha256: '9f2c000000000000000000000000000000000000000000000000000000000000',
-  download_url: 'https://media.websitescreenshotworld.com/example.png',
-  expires_at: '2026-09-27T10:30:04.512Z',
-  error_code: null,
-};
+const CAPTURE_SAMPLE = apiExample('capture');
 
 const urlField = {
   name: 'url',
@@ -228,25 +243,28 @@ const placeFields = [
   },
 ];
 
-const commonBody = {
-  device_category: '{{parameters.device_category}}',
-  emulated_device: '{{parameters.emulated_device}}',
-  viewport: '{{parameters.viewport}}',
-  block_ads: '{{parameters.block_ads}}',
-  block_pop_ups: '{{parameters.block_pop_ups}}',
-  selectors: '{{parameters.selectors}}',
-  locale: '{{parameters.locale}}',
-  time_zone: '{{parameters.time_zone}}',
-  // Make sends a collection the user left empty as {}, and the API refuses a proxy block without a country, so
-  // the block is added only when a country is given: pick() of a missing key is an empty collection.
-  '{{...}}': "{{if(parameters.proxy.country, pick(parameters, 'proxy'), pick(parameters, 'proxyNotGiven'))}}",
-};
+/**
+ * The request body: every parameter the user filled in, as the API names it, so a new API option needs only a new
+ * parameter. Left out: full_page (it becomes scroll_mode) and, unless a country is given, the proxy block, because
+ * Make sends a collection left empty as {} and the API refuses a proxy block without a country.
+ */
+export const PARAMETERS_BODY =
+  "{{if(parameters.proxy.country, omit(parameters, 'full_page'), omit(parameters, 'full_page', 'proxy'))}}";
+
+/** What the module says when a capture did not succeed, from the capture as the API returned it. */
+const UNSUCCESSFUL =
+  "{{if(body.status === 'queued' || body.status === 'running' || body.status === 'pending', 'The capture has not finished yet; read it later with Get a capture. ', '')}}" +
+  "Capture {{body.id}}: {{body.status}} ({{ifempty(body.error_code, 'no error code')}}; page HTTP status {{ifempty(body.page_http_status, 'none')}}). Failed captures are not charged.";
 
 /**
- * A capture module: start the capture asynchronously, read it every 3 seconds until it has finished (a capture that
- * fails stops the module with the API's reason; a failed capture is not charged), then fetch the file or the text
- * from its signed link, without the key. A capture still running when the polling budget is spent is returned
- * as it is, with its id, so a later "Get a Capture" can pick it up.
+ * A capture module:
+ * 1. start the capture asynchronously;
+ * 2. read it every 3 seconds while it is pending, queued or running (an HTTP error keeps the Base's message);
+ * 3. if it did not succeed (failed, timed_out, expired, or still running when the polling budget is spent, or
+ *    already final in the answer to step 1), read it once more and stop with an error that says why;
+ * 4. fetch the file or the text from its signed link, without the key, and output the capture with it.
+ * The API's final statuses are succeeded, failed, timed_out and expired (and delivered, only for by_format
+ * captures, which this app never asks for).
  */
 const captureModule = ({ label, description, mediaCategory, body, expect, pollLimit, download, sample = {} }) => ({
   typeId: 4,
@@ -258,35 +276,34 @@ const captureModule = ({ label, description, mediaCategory, body, expect, pollLi
     {
       url: '/captures',
       method: 'POST',
-      headers: KEY_HEADER,
-      body: { url: '{{parameters.url}}', media_category: mediaCategory, response_type: 'json', async: true, ...body },
+      // The spread comes first: keys after it are the app's own and win over a parameter of the same name.
+      body: { '{{...}}': PARAMETERS_BODY, media_category: mediaCategory, response_type: 'json', async: true, ...body },
       response: { temp: { id: '{{body.id}}', status: '{{body.status}}', capture: '{{body}}' } },
-      log: { sanitize: SANITIZE },
     },
     {
       condition: `{{${UNFINISHED}}}`,
       url: '/captures/{{temp.id}}',
       method: 'GET',
-      headers: KEY_HEADER,
       repeat: { condition: `{{${UNFINISHED}}}`, delay: 3000, limit: pollLimit },
+      response: { temp: { status: '{{body.status}}', capture: '{{body}}' } },
+    },
+    {
+      condition: "{{temp.status !== 'succeeded'}}",
+      url: '/captures/{{temp.id}}',
+      method: 'GET',
       response: {
         temp: { status: '{{body.status}}', capture: '{{body}}' },
-        valid: "{{body.status !== 'failed' && body.status !== 'timed_out' && body.status !== 'expired'}}",
-        error: {
-          message:
-            "The capture ended {{body.status}} ({{ifempty(body.error_code, 'no error code')}}; the page answered HTTP {{ifempty(body.page_http_status, 'nothing')}}). Failed captures are not charged.",
-        },
-        output: captureFields('body'),
+        valid: { condition: "{{body.status === 'succeeded'}}", message: UNSUCCESSFUL },
       },
-      log: { sanitize: SANITIZE },
     },
     {
       condition: "{{temp.status === 'succeeded'}}",
       url: '{{temp.capture.download_url}}',
       method: 'GET',
+      headers: NO_KEY,
       response: {
         type: download.type,
-        output: { ...captureFields('temp.capture'), ...download.output },
+        output: { ...captureOutput('temp.capture'), ...download.output },
       },
     },
   ],
@@ -304,7 +321,7 @@ const binaryDownload = (fileName, extension, size) => ({
 
 export const MODULES = {
   takeScreenshot: captureModule({
-    label: 'Take a Screenshot',
+    label: 'Take a screenshot',
     description: 'Takes a screenshot of a web page as PNG, JPEG, WebP or TIFF.',
     mediaCategory: 'image',
     expect: [
@@ -326,11 +343,7 @@ export const MODULES = {
       ...selectorFields('image'),
       ...placeFields,
     ],
-    body: {
-      format: '{{parameters.format}}',
-      scroll_mode: "{{if(parameters.full_page, 'scroll', 'viewport')}}",
-      ...commonBody,
-    },
+    body: { scroll_mode: "{{if(parameters.full_page, 'scroll', 'viewport')}}" },
     pollLimit: 40,
     download: binaryDownload('capture-{{temp.capture.id}}.{{temp.capture.format}}', 'png', CAPTURE_SAMPLE.size_bytes),
   }),
@@ -357,10 +370,8 @@ export const MODULES = {
       ...placeFields,
     ],
     body: {
-      format: '{{parameters.format}}',
       // A document PDF is laid out page by page and is never a scrolling capture; the API refuses that.
       scroll_mode: "{{if(parameters.full_page && parameters.format === 'image_pdf', 'scroll', 'viewport')}}",
-      ...commonBody,
     },
     pollLimit: 40,
     sample: {
@@ -376,7 +387,7 @@ export const MODULES = {
   }),
 
   recordVideo: captureModule({
-    label: 'Record a Video',
+    label: 'Record a video',
     description: 'Records a video of a web page scrolling from top to bottom, on plans that include video.',
     mediaCategory: 'video',
     expect: [
@@ -397,7 +408,7 @@ export const MODULES = {
       ...selectorFields(true),
       ...placeFields,
     ],
-    body: { format: '{{parameters.format}}', ...commonBody },
+    body: {},
     pollLimit: 80,
     sample: {
       media_category: 'video',
@@ -413,7 +424,7 @@ export const MODULES = {
   }),
 
   getPageContent: captureModule({
-    label: 'Get Page Content',
+    label: 'Get page content',
     description: "Reads a web page's main content as Markdown or plain text, without menus, cookie banners or scripts.",
     mediaCategory: 'content',
     expect: [
@@ -432,7 +443,7 @@ export const MODULES = {
       ...selectorFields(false),
       ...placeFields,
     ],
-    body: { format: '{{parameters.format}}', ...commonBody },
+    body: {},
     pollLimit: 40,
     sample: {
       media_category: 'content',
@@ -453,7 +464,7 @@ export const MODULES = {
 
   getCapture: {
     typeId: 4,
-    label: 'Get a Capture',
+    label: 'Get a capture',
     description: 'Reads a capture back by its ID, with a fresh download link.',
     connection: 'instantSnap',
     expect: [
@@ -468,9 +479,7 @@ export const MODULES = {
     api: {
       url: '/captures/{{encodeURL(parameters.capture_id)}}',
       method: 'GET',
-      headers: KEY_HEADER,
-      response: { output: captureFields('body') },
-      log: { sanitize: SANITIZE },
+      response: { output: captureOutput('body') },
     },
     interface: CAPTURE_INTERFACE,
     samples: CAPTURE_SAMPLE,
@@ -478,7 +487,7 @@ export const MODULES = {
 
   captureScheduledPageNow: {
     typeId: 4,
-    label: 'Capture a Scheduled Page Now',
+    label: 'Capture a scheduled page now',
     description:
       'Starts the capture of a web page set up in Auto Schedule now. The result arrives as a capture event.',
     connection: 'autoSchedule',
@@ -494,40 +503,25 @@ export const MODULES = {
     api: {
       url: '/web-pages/{{encodeURL(parameters.web_page_id)}}/trigger-now',
       method: 'POST',
-      headers: KEY_HEADER,
       // The API reads nothing from the body; Make's editor expects a POST to have one.
       body: {},
-      response: {
-        output: {
-          status: '{{body.status}}',
-          web_page_id: '{{body.web_page_id}}',
-          triggered_by: '{{body.triggered_by}}',
-          triggered_at: '{{body.triggered_at}}',
-          message: '{{body.message}}',
-        },
-      },
-      log: { sanitize: SANITIZE },
+      response: { output: { '{{...}}': '{{body}}', triggered_at: dateOf('body.triggered_at') } },
     },
     interface: [
+      { name: 'success', type: 'boolean', label: 'Success' },
       { name: 'status', type: 'text', label: 'Status (triggered or already_pending)' },
       { name: 'web_page_id', type: 'text', label: 'Web page ID' },
-      { name: 'triggered_by', type: 'text', label: 'Triggered by' },
+      { name: 'triggered_by', type: 'text', label: 'Triggered by (api or ui)' },
       { name: 'triggered_at', type: 'date', label: 'Triggered at' },
       { name: 'message', type: 'text', label: 'Message' },
     ],
-    samples: {
-      status: 'triggered',
-      web_page_id: '7d4e2b1a-6c5f-4a3e-9d8c-2b1a0f9e8d7c',
-      triggered_by: 'api',
-      triggered_at: '2026-09-26T10:30:00.000Z',
-      message: 'A capture of this page was queued.',
-    },
+    samples: apiExample('trigger-now'),
   },
 
   makeApiCall: {
     typeId: 12,
-    label: 'Make an API Call',
-    description: 'Performs any Instant Snap API call with your key.',
+    label: 'Make an API call',
+    description: 'Performs an arbitrary authorized API call.',
     connection: 'instantSnap',
     expect: [
       {
@@ -535,7 +529,7 @@ export const MODULES = {
         type: 'text',
         label: 'URL',
         required: true,
-        help: 'A path relative to `https://api.websitescreenshotworld.com/instant-snap/v1`, such as `/captures` or `/account`.',
+        help: 'A path relative to `https://api.websitescreenshotworld.com/instant-snap/v1`. For example: `/captures` or `/account`.',
       },
       {
         name: 'method',
@@ -567,17 +561,15 @@ export const MODULES = {
       { name: 'body', type: 'any', label: 'Body', help: 'A JSON body, for POST.' },
     ],
     api: {
-      url: '{{parameters.url}}',
+      // Always the Instant Snap API: the user's path is appended to the fixed address (Make removes a leading
+      // slash), so a full URL typed by the user can never send the key to another host.
+      url: `${INSTANT_SNAP_BASE}/{{parameters.url}}`,
       method: '{{parameters.method}}',
-      headers: {
-        '{{...}}': "{{toCollection(parameters.headers, 'key', 'value')}}",
-        'x-api-key': '{{connection.apiKey}}',
-      },
+      headers: { '{{...}}': "{{toCollection(parameters.headers, 'key', 'value')}}" },
       qs: { '{{...}}': "{{toCollection(parameters.qs, 'key', 'value')}}" },
       body: '{{parameters.body}}',
       type: 'json',
       response: { output: { body: '{{body}}', headers: '{{headers}}', statusCode: '{{statusCode}}' } },
-      log: { sanitize: SANITIZE },
     },
     interface: [
       { name: 'body', type: 'any', label: 'Body' },
@@ -595,13 +587,16 @@ export const MODULES = {
 /**
  * The events, as the webhook endpoints API names them. Each trigger's webhook is added to the organization when
  * the scenario's webhook is created (POST /webhook-endpoints) and deleted with it, the same API the Zapier app
- * uses. `sample` names the spec's example delivery the trigger's sample and interface come from.
+ * uses. `samples` names the spec's example deliveries the trigger's sample and interface come from. `webhookName`
+ * is the webhook's own name in Make and on the endpoint, kept from the first version: the upload finds a webhook by
+ * its label, so renaming it would create a new one.
  */
 export const EVENTS = [
   {
     key: 'captureSucceeded',
     event: 'capture.succeeded',
-    label: 'Watch Captures Succeeded',
+    label: 'Watch succeeded captures',
+    webhookName: 'Captures Succeeded',
     description: 'Triggers when a capture finishes, from a schedule or from the Instant Snap API.',
     products: true,
     samples: ['auto-schedule.capture.succeeded', 'instant-snap.capture.succeeded'],
@@ -609,7 +604,8 @@ export const EVENTS = [
   {
     key: 'captureFailed',
     event: 'capture.failed',
-    label: 'Watch Captures Failed',
+    label: 'Watch failed captures',
+    webhookName: 'Captures Failed',
     description: 'Triggers when a capture fails, from a schedule or from the Instant Snap API.',
     products: true,
     samples: ['auto-schedule.capture.failed', 'instant-snap.capture.failed'],
@@ -617,28 +613,32 @@ export const EVENTS = [
   {
     key: 'pageChanged',
     event: 'capture.changed',
-    label: 'Watch Page Changes',
+    label: 'Watch page changes',
+    webhookName: 'Page Changes',
     description: 'Triggers when a scheduled page looks different from its previous capture, with the change percentage.',
     samples: ['auto-schedule.capture.changed'],
   },
   {
     key: 'deliveryCompleted',
     event: 'delivery.completed',
-    label: 'Watch Deliveries Completed',
+    label: 'Watch completed deliveries',
+    webhookName: 'Deliveries Completed',
     description: 'Triggers when a capture has been delivered to your cloud storage (S3, Google Drive or Dropbox).',
     samples: ['auto-schedule.delivery.completed'],
   },
   {
     key: 'schedulePaused',
     event: 'schedule.paused',
-    label: 'Watch Schedules Paused',
+    label: 'Watch paused schedules',
+    webhookName: 'Schedules Paused',
     description: 'Triggers when a schedule is paused, for example because the plan has no captures left.',
     samples: ['auto-schedule.schedule.paused'],
   },
   {
     key: 'sitemapRunCompleted',
     event: 'sitemap_run.completed',
-    label: 'Watch Sitemap Runs Completed',
+    label: 'Watch completed sitemap runs',
+    webhookName: 'Sitemap Runs Completed',
     description: 'Triggers when every page of a sitemap schedule run has been captured or skipped.',
     samples: ['auto-schedule.sitemap_run.completed'],
   },
@@ -655,10 +655,11 @@ export const PRODUCT_PARAMETER = {
   ],
 };
 
+// Events first, as Make's naming conventions ask.
 export const GROUPS = [
+  { label: 'Events', modules: EVENTS.map((event) => `watch${event.key[0].toUpperCase()}${event.key.slice(1)}`) },
   { label: 'Captures', modules: ['takeScreenshot', 'createPdf', 'recordVideo', 'getPageContent', 'getCapture'] },
   { label: 'Auto Schedule', modules: ['captureScheduledPageNow'] },
-  { label: 'Events', modules: EVENTS.map((event) => `watch${event.key[0].toUpperCase()}${event.key.slice(1)}`) },
   { label: 'Other', modules: ['makeApiCall'] },
 ];
 

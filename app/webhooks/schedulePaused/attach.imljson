@@ -1,9 +1,6 @@
 {
-  "url": "{{connection.apiBase}}/webhook-endpoints",
+  "url": "/webhook-endpoints",
   "method": "POST",
-  "headers": {
-    "x-api-key": "{{connection.apiKey}}"
-  },
   "body": {
     "url": "{{webhook.url}}",
     "events": [

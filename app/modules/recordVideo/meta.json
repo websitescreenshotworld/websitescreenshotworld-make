@@ -1,6 +1,6 @@
 {
   "typeId": 4,
-  "label": "Record a Video",
+  "label": "Record a video",
   "description": "Records a video of a web page scrolling from top to bottom, on plans that include video.",
   "connection": "instantSnap"
 }

@@ -13,12 +13,14 @@ import { fileURLToPath } from 'node:url';
 import {
   APP,
   BASE,
+  CAPTURE_INTERFACE,
   CONNECTIONS,
   EVENTS,
   GROUPS,
   MODULES,
   PRODUCT_PARAMETER,
   SANITIZE_KEY,
+  dateOf,
 } from './definitions.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -30,85 +32,110 @@ const readEvent = (name) => JSON.parse(readFileSync(join(ROOT, 'samples', 'event
 /** The module name of an event's instant trigger, such as watchCaptureSucceeded. */
 export const triggerName = (event) => `watch${event.key[0].toUpperCase()}${event.key.slice(1)}`;
 
+/** Labels that say more than the field's name, the same in every module. */
+const LABELS = Object.fromEntries(
+  [
+    ...CAPTURE_INTERFACE,
+    ...CAPTURE_INTERFACE.flatMap((field) => field.spec ?? []),
+  ].map((field) => [field.name, field.label]),
+);
+
 const label = (name) =>
-  name === 'id'
-    ? 'Capture ID'
-    : name
+  LABELS[name] ??
+  name
     .split('_')
     .map((word, index) => (index === 0 ? word[0].toUpperCase() + word.slice(1) : word))
     .join(' ')
     .replace(/\bid\b/g, 'ID')
     .replace(/\burl\b/gi, 'URL')
-    .replace(/\bsha256\b/g, 'SHA-256')
-    .replace(/\bhttp\b/g, 'HTTP');
+    .replace(/\bhttp\b/g, 'HTTP')
+    .replace(/ (ms|bytes)$/, ' ($1)');
+
+/** A field's type wherever it appears: the capture's own fields, as GET /captures/{id} returns them. */
+const KNOWN = Object.fromEntries(CAPTURE_INTERFACE.map((field) => [field.name, field]));
+
+/** Dates inside an array (such as a delivery's destinations) stay ISO 8601 text: parsing them needs a custom IML
+ * function, which Make has not enabled for this app. Their label says so. */
+const TEXT_DATE = (name) => ({ name, type: 'text', label: `${label(name)} (ISO 8601)` });
 
 /**
- * Make's interface for a value, from example values. Fields seen in any example are listed once; a field that is
- * null in every example is text. Dates are the API's *_at fields.
+ * Make's interface for a value, from example values. A field the capture also has gets the capture's type and
+ * label, so every module and trigger types it the same way (a field that is null in one event's examples is not
+ * left as text). Otherwise the type comes from the first example value that is not null; dates are the API's *_at
+ * fields. `inArray` marks fields inside an array, whose dates stay text.
  */
-export function interfaceFor(name, values) {
+export function interfaceFor(name, values, { inArray = false } = {}) {
   const present = values.filter((value) => value !== null && value !== undefined);
-  const field = { name, label: label(name) };
+  const known = KNOWN[name];
   const first = present[0];
+  if (inArray && name.endsWith('_at')) return TEXT_DATE(name);
+  // page_source and s3_delivery list the same fields in every module and trigger, even where an event carries
+  // only some of them.
+  if (known) return { ...known };
+  const field = { name, label: label(name) };
   if (first === undefined) return { ...field, type: name.endsWith('_at') ? 'date' : name.endsWith('url') ? 'url' : 'text' };
   if (Array.isArray(first)) {
     const items = present.flat().filter((item) => item && typeof item === 'object');
     return items.length
-      ? { ...field, type: 'array', spec: { type: 'collection', spec: collectionSpec(items) } }
+      ? { ...field, type: 'array', spec: { type: 'collection', spec: collectionSpec(items, { inArray: true }) } }
       : { ...field, type: 'array' };
   }
-  if (typeof first === 'object') return { ...field, type: 'collection', spec: collectionSpec(present) };
+  if (typeof first === 'object') return { ...field, type: 'collection', spec: collectionSpec(present, { inArray }) };
   if (typeof first === 'boolean') return { ...field, type: 'boolean' };
-  if (typeof first === 'number') return { ...field, type: 'number' };
+  if (typeof first === 'number') return { ...field, type: Number.isInteger(first) ? 'uinteger' : 'number' };
   if (name.endsWith('_at')) return { ...field, type: 'date' };
   if (name.endsWith('url')) return { ...field, type: 'url' };
   return { ...field, type: 'text' };
 }
 
-function collectionSpec(objects) {
+function collectionSpec(objects, options) {
   const names = [];
   for (const object of objects) for (const key of Object.keys(object)) if (!names.includes(key)) names.push(key);
-  return names.map((key) => interfaceFor(key, objects.map((object) => object[key])));
+  return names.map((key) => interfaceFor(key, objects.map((object) => object[key]), options));
 }
+
+/** The *_at fields at the top of an event's data, in any of its examples: the dates the trigger parses. */
+const dataDates = (examples) => [
+  ...new Set(examples.flatMap((example) => Object.keys(example.data).filter((key) => key.endsWith('_at')))),
+];
 
 function webhookFor(event) {
   const filter = event.products
     ? `body.type === '${event.event}' && (!parameters.product || body.product === parameters.product)`
     : `body.type === '${event.event}'`;
+  const examples = event.samples.map(readEvent);
   return {
-    meta: { label: `Website Screenshot World: ${event.label.replace(/^Watch /, '')}`, type: 'web' },
+    meta: { label: `Website Screenshot World: ${event.webhookName}`, type: 'web' },
     parameters: event.products ? [PRODUCT_PARAMETER] : [],
+    // The Base gives these requests the API address and the key.
     attach: {
-      url: '{{connection.apiBase}}/webhook-endpoints',
+      url: '/webhook-endpoints',
       method: 'POST',
-      headers: { 'x-api-key': '{{connection.apiKey}}' },
       body: {
         url: '{{webhook.url}}',
         events: [event.event],
-        name: `Make: ${event.label.replace(/^Watch /, '')}`,
+        name: `Make: ${event.webhookName}`,
         ...(event.products ? { product: '{{parameters.product}}' } : {}),
       },
       response: { data: { externalHookId: '{{body.id}}' } },
       log: { sanitize: [...SANITIZE_KEY, 'request.body.url', 'response.body.url', 'response.body.signing_secret'] },
     },
     detach: {
-      url: '{{connection.apiBase}}/webhook-endpoints/{{webhook.externalHookId}}',
+      url: '/webhook-endpoints/{{webhook.externalHookId}}',
       method: 'DELETE',
-      headers: { 'x-api-key': '{{connection.apiKey}}' },
-      log: { sanitize: SANITIZE_KEY },
     },
-    // Each delivery is one event, kept as the API sent it: id (the event's own, stable across retries), event,
-    // product, created_at and data. Other event types (such as the dashboard's test ping) are acknowledged and
-    // dropped.
+    // Each delivery is one event, output as the API sent it, with its dates parsed. Other event types (such as the
+    // dashboard's test ping) are acknowledged and dropped.
     api: {
       condition: `{{${filter}}}`,
       respond: { status: 200, type: 'json', body: { received: true } },
       output: {
-        id: '{{body.id}}',
-        event: '{{body.type}}',
-        product: '{{body.product}}',
-        created_at: '{{body.created_at}}',
-        data: '{{body.data}}',
+        '{{...}}': '{{body}}',
+        created_at: dateOf('body.created_at'),
+        data: {
+          '{{...}}': '{{body.data}}',
+          ...Object.fromEntries(dataDates(examples).map((key) => [key, dateOf(`body.data.${key}`)])),
+        },
       },
     },
   };
@@ -116,7 +143,6 @@ function webhookFor(event) {
 
 function triggerFor(event) {
   const examples = event.samples.map(readEvent);
-  const first = examples[0];
   return {
     meta: { typeId: 10, label: event.label, description: event.description, webhook: event.key },
     api: {},
@@ -124,12 +150,12 @@ function triggerFor(event) {
     expect: [],
     interface: [
       { name: 'id', type: 'text', label: 'Event ID' },
-      { name: 'event', type: 'text', label: 'Event' },
-      { name: 'product', type: 'text', label: 'Product' },
+      { name: 'type', type: 'text', label: 'Event type' },
       { name: 'created_at', type: 'date', label: 'Created at' },
+      { name: 'product', type: 'text', label: 'Product' },
       { ...interfaceFor('data', examples.map((example) => example.data)), label: 'Data' },
     ],
-    samples: { id: first.id, event: first.type, product: first.product, created_at: first.created_at, data: first.data },
+    samples: examples[0],
   };
 }
 
