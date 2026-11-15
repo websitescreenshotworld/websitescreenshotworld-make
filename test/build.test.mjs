@@ -98,6 +98,16 @@ describe('capture modules', () => {
     });
   }
 
+  test('each sample describes its own kind of capture', () => {
+    const extensions = { takeScreenshot: '.png', createPdf: '.pdf', recordVideo: '.mp4' };
+    for (const [name, mediaCategory] of Object.entries(cases)) {
+      const sample = read(`modules/${name}/samples.imljson`);
+      assert.equal(sample.media_category, mediaCategory, name);
+      if (extensions[name]) assert.ok(sample.fileName.endsWith(extensions[name]), `${name} sample file name`);
+      if (name !== 'takeScreenshot') assert.doesNotMatch(sample.content_type, /^image\//, name);
+    }
+  });
+
   test('every mappable field is used in the request body', () => {
     for (const name of Object.keys(cases)) {
       const body = JSON.stringify(read(`modules/${name}/api.imljson`)[0].body);

@@ -17,6 +17,12 @@ every module, run shortly before the review, with no personal or sensitive data 
    picked), Page Changes, Deliveries Completed (the Google Drive destination), Schedules Paused (the 401 test
    schedule) and Sitemap Runs Completed. Check in Developer Tools, Webhooks that each adds a "Make: ..." endpoint,
    and that deleting the webhook in Make removes it.
+   Producing each event: a Quick Capture of the gazette schedule sends Captures Succeeded and Deliveries
+   Completed, and Page Changes only when the page really changed. A Quick Capture of the 401 schedule sends
+   Captures Failed; Schedules Paused needs that schedule resumed first, since it fires only when a schedule is
+   paused. A sitemap schedule cannot be started on demand (the API answers 409), so for Sitemap Runs Completed
+   create a sitemap schedule that starts now. Make keeps events that arrive while no run is listening: click
+   Run once and choose "Use existing data".
 4. Run every scenario once, as close to the review request as you can.
 
 ## 2. Publish (cannot be undone)

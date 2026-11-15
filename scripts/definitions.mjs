@@ -248,7 +248,7 @@ const commonBody = {
  * from its signed link, without the key. A capture still running when the polling budget is spent is returned
  * as it is, with its id, so a later "Get a Capture" can pick it up.
  */
-const captureModule = ({ label, description, mediaCategory, body, expect, pollLimit, download }) => ({
+const captureModule = ({ label, description, mediaCategory, body, expect, pollLimit, download, sample = {} }) => ({
   typeId: 4,
   label,
   description,
@@ -291,14 +291,15 @@ const captureModule = ({ label, description, mediaCategory, body, expect, pollLi
     },
   ],
   interface: [...CAPTURE_INTERFACE, ...download.interface],
-  samples: { ...CAPTURE_SAMPLE, ...download.sample },
+  // Each module's sample describes its own kind of capture, so the mapping panel shows what the module returns.
+  samples: { ...CAPTURE_SAMPLE, ...sample, ...download.sample },
 });
 
-const binaryDownload = (fileName) => ({
+const binaryDownload = (fileName, extension, size) => ({
   type: 'binary',
   output: { fileName, data: '{{body}}' },
   interface: FILE_INTERFACE,
-  sample: { fileName: 'capture-3f6c2a1e-9b8d-4c7e-a5f4-1d2e3c4b5a69.png', data: 'IMTBuffer(482113, binary, 9f2c0000)' },
+  sample: { fileName: `capture-${CAPTURE_SAMPLE.id}.${extension}`, data: `IMTBuffer(${size}, binary, 9f2c0000)` },
 });
 
 export const MODULES = {
@@ -331,7 +332,7 @@ export const MODULES = {
       ...commonBody,
     },
     pollLimit: 40,
-    download: binaryDownload('capture-{{temp.capture.id}}.{{temp.capture.format}}'),
+    download: binaryDownload('capture-{{temp.capture.id}}.{{temp.capture.format}}', 'png', CAPTURE_SAMPLE.size_bytes),
   }),
 
   createPdf: captureModule({
@@ -362,7 +363,16 @@ export const MODULES = {
       ...commonBody,
     },
     pollLimit: 40,
-    download: binaryDownload('capture-{{temp.capture.id}}.pdf'),
+    sample: {
+      media_category: 'pdf',
+      format: 'document_pdf',
+      content_type: 'application/pdf',
+      size_bytes: 167077,
+      width: null,
+      height: null,
+      download_url: 'https://media.websitescreenshotworld.com/example.pdf',
+    },
+    download: binaryDownload('capture-{{temp.capture.id}}.pdf', 'pdf', 167077),
   }),
 
   recordVideo: captureModule({
@@ -389,7 +399,17 @@ export const MODULES = {
     ],
     body: { format: '{{parameters.format}}', ...commonBody },
     pollLimit: 80,
-    download: binaryDownload('capture-{{temp.capture.id}}.{{temp.capture.format}}'),
+    sample: {
+      media_category: 'video',
+      format: 'mp4',
+      content_type: 'video/mp4',
+      size_bytes: 2841600,
+      width: null,
+      height: null,
+      duration_ms: 18640,
+      download_url: 'https://media.websitescreenshotworld.com/example.mp4',
+    },
+    download: binaryDownload('capture-{{temp.capture.id}}.{{temp.capture.format}}', 'mp4', 2841600),
   }),
 
   getPageContent: captureModule({
@@ -414,6 +434,15 @@ export const MODULES = {
     ],
     body: { format: '{{parameters.format}}', ...commonBody },
     pollLimit: 40,
+    sample: {
+      media_category: 'content',
+      format: 'markdown',
+      content_type: 'text/markdown; charset=utf-8',
+      size_bytes: 72,
+      width: null,
+      height: null,
+      download_url: 'https://media.websitescreenshotworld.com/example.md',
+    },
     download: {
       type: 'text',
       output: { content: '{{body}}' },
