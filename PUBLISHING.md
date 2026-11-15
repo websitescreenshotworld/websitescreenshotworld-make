@@ -19,10 +19,10 @@ every module, run shortly before the review, with no personal or sensitive data 
    and that deleting the webhook in Make removes it.
    Producing each event: a Quick Capture of the gazette schedule sends Captures Succeeded and Deliveries
    Completed, and Page Changes only when the page really changed. A Quick Capture of the 401 schedule sends
-   Captures Failed; Schedules Paused needs that schedule resumed first, since it fires only when a schedule is
-   paused. A sitemap schedule cannot be started on demand (the API answers 409), so for Sitemap Runs Completed
-   create a sitemap schedule that starts now. Make keeps events that arrive while no run is listening: click
-   Run once and choose "Use existing data".
+   Captures Failed; for Schedules Paused, resume that schedule and Quick Capture it until it pauses again (twice,
+   on 15 Nov 2026). A sitemap schedule cannot be started on demand (the API answers 409): edit the sitemap
+   schedule, set Start to "Immediately" and save, and its run sends Sitemap Runs Completed. Make keeps events that
+   arrive while no run is listening: click Run once and choose "Use existing data".
 4. Run every scenario once, as close to the review request as you can.
 
 ## 2. Publish (cannot be undone)
@@ -30,16 +30,21 @@ every module, run shortly before the review, with no personal or sensitive data 
 Publishing gives the app an invite link. A published app cannot be made private again and its modules cannot be
 deleted (only hidden), so remove anything that is only for testing first.
 
-1. Developers (Custom apps), the app, **Publish**.
-2. Modules tab: make every module public.
+1. More, Custom Apps, the app, **Publish** (done 15 Nov 2026).
+2. Modules tab: switch every module to "visible" (done 15 Nov 2026).
 
 ## 3. Request the review
 
-1. The app's **Review** tab: the API documentation link (`https://www.websitescreenshotworld.com/api-documentation`)
-   and the links to the test scenarios.
-2. **Request review**, then the form: developer and support contact (admin@websitescreenshotworld.com and
-   support@websitescreenshotworld.com), categories, the company logo (`assets/logo-512.png`, 512 × 512 PNG), the
-   service address (`https://www.websitescreenshotworld.com`), and the trademark and terms declarations.
-3. Make runs an automatic check, which sends a PDF of issues, then a manual review; feedback comes by email.
+1. The app's **Review** tab: the API documentation link (`https://www.websitescreenshotworld.com/api-documentation`),
+   one scenario link per module (`https://eu1.make.com/<team>/scenarios/<id>/edit`), and a link to a scenario that
+   shows an API error (Get a Capture with the ID `00000000-0000-0000-0000-000000000000` answers 404
+   `capture_not_found`). Make the latest run of each linked scenario a successful one: reviewers read the history.
+2. **Request review** on the Review tab submits at once (no further form on 15 Nov 2026); the app shows "pending
+   approval". The developer contact shown is the Make account's (admin@websitescreenshotworld.com).
+3. Make runs an automatic check, then a manual review; feedback comes by email. "Update review" on the Review tab
+   resubmits after changes.
+
+Submitted 15 Nov 2026. Scenarios linked: actions 8592379; triggers 8592868 (failed), 8592784 (succeeded), 8592841
+(deliveries), 8592824 (page changes), 8592884 (paused), 8592898 (sitemap runs); API error 8593353.
 
 After approval, every change to the app (new modules, code, logo or theme) needs Make's approval again.
